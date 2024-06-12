@@ -2,10 +2,10 @@ import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 
 export const navItems = [
-  { key: 'overview', title: 'Overview', href: paths.dashboard.overview, icon: 'chart-pie' },
-  { key: 'customers', title: 'Customers', href: paths.dashboard.customers, icon: 'users' },
-  { key: 'integrations', title: 'Integrations', href: paths.dashboard.integrations, icon: 'plugs-connected' },
+  { key: 'sales', title: 'Sales', href: paths.dashboard.sales, icon: 'chart-pie' },
+  { key: 'tickets', title: 'Tickets', href: paths.dashboard.tickets, icon: 'ticket' },
+  { key: 'categories', title: 'Categories', href: paths.dashboard.categories, icon: 'categories' },
+  { key: 'games', title: 'Games', href: paths.dashboard.games, icon: 'game' },
+  { key: 'users', title: 'Users', href: paths.dashboard.users, icon: 'users' },
   { key: 'settings', title: 'Settings', href: paths.dashboard.settings, icon: 'gear-six' },
-  { key: 'account', title: 'Account', href: paths.dashboard.account, icon: 'user' },
-  { key: 'error', title: 'Error', href: paths.errors.notFound, icon: 'x-square' },
 ] satisfies NavItemConfig[];

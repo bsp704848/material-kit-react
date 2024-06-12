@@ -5,6 +5,9 @@ import { PlugsConnected as PlugsConnectedIcon } from '@phosphor-icons/react/dist
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
 import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
+import { Ticket as TicketIcon } from '@phosphor-icons/react/dist/ssr/Ticket';
+import { Folders as FoldersIcon } from '@phosphor-icons/react/dist/ssr/Folders';
+import { GameController } from '@phosphor-icons/react/dist/ssr/GameController';
 
 export const navIcons = {
   'chart-pie': ChartPieIcon,
@@ -13,4 +16,7 @@ export const navIcons = {
   'x-square': XSquare,
   user: UserIcon,
   users: UsersIcon,
+  ticket: TicketIcon,
+  categories: FoldersIcon,
+  game: GameController,
 } as Record<string, Icon>;
