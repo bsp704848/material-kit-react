@@ -73,10 +73,10 @@ export function SignUpForm(): React.JSX.Element {
   return (
     <Stack spacing={3}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign up</Typography>
+      <Typography variant="h4" sx={{ fontFamily: 'OCR A Std, monospace' }}>Sign Up</Typography>
         <Typography color="text.secondary" variant="body2">
           Already have an account?{' '}
-          <Link component={RouterLink} href={paths.auth.signIn} underline="hover" variant="subtitle2">
+          <Link component={RouterLink} href={paths.auth.signIn} underline="hover" variant="subtitle2" sx={{ color: '#333333' }}>
             Sign in
           </Link>
         </Typography>
@@ -122,7 +122,7 @@ export function SignUpForm(): React.JSX.Element {
             render={({ field }) => (
               <FormControl error={Boolean(errors.password)}>
                 <InputLabel>Password</InputLabel>
-                <OutlinedInput {...field} label="Password" type="password" />
+                <OutlinedInput {...field} label="Password" type="password"   />
                 {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
               </FormControl>
             )}
@@ -136,7 +136,7 @@ export function SignUpForm(): React.JSX.Element {
                   control={<Checkbox {...field} />}
                   label={
                     <React.Fragment>
-                      I have read the <Link>terms and conditions</Link>
+                      I have read the <Link sx={{ color: '#333333' }}>terms and conditions</Link>
                     </React.Fragment>
                   }
                 />
@@ -145,12 +145,17 @@ export function SignUpForm(): React.JSX.Element {
             )}
           />
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
-          <Button disabled={isPending} type="submit" variant="contained">
+          <Button disabled={isPending} type="submit" variant="contained" sx={{
+    backgroundColor: 'black',
+    '&:hover': {
+      backgroundColor: 'grey',
+    },
+  }}>
             Sign up
           </Button>
         </Stack>
       </form>
-      <Alert color="warning">Created users are not persisted</Alert>
+      <Alert color="warning">alert</Alert>
     </Stack>
   );
 }

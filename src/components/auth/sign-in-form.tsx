@@ -21,6 +21,7 @@ import { z as zod } from 'zod';
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
+import { SelectionBackground } from '@phosphor-icons/react';
 
 const schema = zod.object({
   email: zod.string().min(1, { message: 'Email is required' }).email(),
@@ -29,7 +30,7 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'sofia@devias.io', password: 'Secret1' } satisfies Values;
+const defaultValues = { email: 'alouahajar20@gmail.com', password: 'Secret1' } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -72,10 +73,11 @@ export function SignInForm(): React.JSX.Element {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
+      <Typography variant="h4" sx={{ fontFamily: 'American Typewriter, serifOCR A Std, monospace' }}>Sign In</Typography>
+
         <Typography color="text.secondary" variant="body2">
           Don&apos;t have an account?{' '}
-          <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2">
+          <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2"  sx={{ color: '#333333' }}>
             Sign up
           </Link>
         </Typography>
@@ -100,6 +102,7 @@ export function SignInForm(): React.JSX.Element {
               <FormControl error={Boolean(errors.password)}>
                 <InputLabel>Password</InputLabel>
                 <OutlinedInput
+                
                   {...field}
                   endAdornment={
                     showPassword ? (
@@ -128,12 +131,17 @@ export function SignInForm(): React.JSX.Element {
             )}
           />
           <div>
-            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
+            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2" sx={{ color: '#333333' }}>
               Forgot password?
             </Link>
           </div>
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
-          <Button disabled={isPending} type="submit" variant="contained">
+          <Button disabled={isPending} type="submit" variant="contained"  sx={{
+    backgroundColor: 'black',
+    '&:hover': {
+      backgroundColor: 'grey',
+    },
+  }}>
             Sign in
           </Button>
         </Stack>
@@ -141,7 +149,7 @@ export function SignInForm(): React.JSX.Element {
       <Alert color="warning">
         Use{' '}
         <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          sofia@devias.io
+          alouahajar20@gmail.com
         </Typography>{' '}
         with password{' '}
         <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">

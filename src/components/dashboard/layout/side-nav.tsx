@@ -25,18 +25,18 @@ export function SideNav(): React.JSX.Element {
   return (
     <Box
       sx={{
-        '--SideNav-background': 'var(--mui-palette-neutral-950)',
-        '--SideNav-color': 'var(--mui-palette-common-white)',
+        '--SideNav-background': 'black',
+        '--SideNav-color': 'white',
         '--NavItem-color': 'var(--mui-palette-neutral-300)',
-        '--NavItem-hover-background': 'rgba(255, 255, 255, 0.04)',
-        '--NavItem-active-background': 'var(--mui-palette-primary-main)',
-        '--NavItem-active-color': 'var(--mui-palette-primary-contrastText)',
+        '--NavItem-hover-background': 'white',
+        '--NavItem-active-background': '#333333',
+        '--NavItem-active-color': 'white',
         '--NavItem-disabled-color': 'var(--mui-palette-neutral-500)',
-        '--NavItem-icon-color': 'var(--mui-palette-neutral-400)',
-        '--NavItem-icon-active-color': 'var(--mui-palette-primary-contrastText)',
+        '--NavItem-icon-color': 'white',
+        '--NavItem-icon-active-color': 'white',
         '--NavItem-icon-disabled-color': 'var(--mui-palette-neutral-600)',
-        bgcolor: 'var(--SideNav-background)',
-        color: 'var(--SideNav-color)',
+        bgcolor: 'black',
+        color: 'white',
         display: { xs: 'none', lg: 'flex' },
         flexDirection: 'column',
         height: '100%',
@@ -54,61 +54,17 @@ export function SideNav(): React.JSX.Element {
         <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
           <Logo color="light" height={32} width={122} />
         </Box>
-        <Box
-          sx={{
-            alignItems: 'center',
-            backgroundColor: 'var(--mui-palette-neutral-950)',
-            border: '1px solid var(--mui-palette-neutral-700)',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            display: 'flex',
-            p: '4px 12px',
-          }}
-        >
-          <Box sx={{ flex: '1 1 auto' }}>
-            <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-              Workspace
-            </Typography>
-            <Typography color="inherit" variant="subtitle1">
-              Devias
-            </Typography>
-          </Box>
-          <CaretUpDownIcon />
-        </Box>
+        
       </Stack>
-      <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
+      <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)'  }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
         {renderNavItems({ pathname, items: navItems })}
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Stack spacing={2} sx={{ p: '12px' }}>
-        <div>
-          <Typography color="var(--mui-palette-neutral-100)" variant="subtitle2">
-            Need more features?
-          </Typography>
-          <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-            Check out our Pro solution template.
-          </Typography>
-        </div>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            alt="Pro version"
-            src="/assets/devias-kit-pro.png"
-            sx={{ height: 'auto', width: '160px' }}
-          />
-        </Box>
-        <Button
-          component="a"
-          endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
-          fullWidth
-          href="https://material-kit-pro-react.devias.io/"
-          sx={{ mt: 2 }}
-          target="_blank"
-          variant="contained"
-        >
-          Pro version
-        </Button>
+        
+        
+        
       </Stack>
     </Box>
   );
@@ -124,7 +80,7 @@ function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pat
   }, []);
 
   return (
-    <Stack component="ul" spacing={1} sx={{ listStyle: 'none', m: 0, p: 0 }}>
+    <Stack component="ul" spacing={1} sx={{ listStyle: 'none', m: 1, p: 1 }}>
       {children}
     </Stack>
   );
@@ -156,8 +112,8 @@ function NavItem({ disabled, external, href, icon, matcher, pathname, title }: N
           cursor: 'pointer',
           display: 'flex',
           flex: '0 0 auto',
-          gap: 1,
-          p: '6px 16px',
+          gap: 4,
+          p: '4px 10px',
           position: 'relative',
           textDecoration: 'none',
           whiteSpace: 'nowrap',
