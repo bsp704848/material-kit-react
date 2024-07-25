@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import { GearSix as GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { SignOut as SignOutIcon } from '@phosphor-icons/react/dist/ssr/SignOut';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
+import axios from 'axios';
 
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
@@ -25,8 +28,25 @@ export interface UserPopoverProps {
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
   const { checkSession } = useUser();
-
+  const [user, setUser] = React.useState<{ name: string; email: string } | null>(null);
   const router = useRouter();
+
+  React.useEffect(() => {
+    const fetchUserData = async (): Promise<void> => {
+      try {
+        const response = await axios.get<{ name: string; email: string }>('/api/users/profile'); // Ajuste o endpoint conforme necessário
+        setUser(response.data);
+      } catch (error) {
+        logger.error('Failed to fetch user data', error);
+      }
+    };
+
+    if (open) {
+      fetchUserData().catch((err: unknown) => {
+        logger.error('Error during fetchUserData', err);
+      });
+    }
+  }, [open]);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
@@ -57,10 +77,18 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       slotProps={{ paper: { sx: { width: '240px' } } }}
     >
       <Box sx={{ p: '16px 20px ' }}>
-        <Typography variant="subtitle1">Sofia Rivers</Typography>
-        <Typography color="text.secondary" variant="body2">
-          sofia.rivers@devias.io
-        </Typography>
+        {user ? (
+          <>
+            <Typography variant="subtitle1">{user.name}</Typography>
+            <Typography color="text.secondary" variant="body2">
+              {user.email}
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Carregando...
+          </Typography>
+        )}
       </Box>
       <Divider />
       <MenuList disablePadding sx={{ p: '8px', '& .MuiMenuItem-root': { borderRadius: 1 } }}>

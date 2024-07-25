@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import type { User } from '@/types/user';
-import { authClient } from '@/lib/auth/client';
 import { logger } from '@/lib/default-logger';
 
 export interface UserContextValue {
@@ -28,18 +27,21 @@ export function UserProvider({ children }: UserProviderProps): React.JSX.Element
 
   const checkSession = React.useCallback(async (): Promise<void> => {
     try {
-      const { data, error } = await authClient.getUser();
+      const token = localStorage.getItem('access_token');
 
-      if (error) {
-        logger.error(error);
-        setState((prev) => ({ ...prev, user: null, error: 'Something went wrong', isLoading: false }));
+      if (!token) {
+        setState({ user: null, error: null, isLoading: false });
         return;
       }
 
-      setState((prev) => ({ ...prev, user: data ?? null, error: null, isLoading: false }));
+      // Aqui você pode fazer uma chamada à API para obter as informações do usuário, se necessário.
+      // No momento, estamos simulando um usuário autenticado.
+      const user: User = { id: '1', email: 'user@example.com', name: 'User', role: 'User' };
+
+      setState({ user, error: null, isLoading: false });
     } catch (err) {
       logger.error(err);
-      setState((prev) => ({ ...prev, user: null, error: 'Something went wrong', isLoading: false }));
+      setState({ user: null, error: 'Algo deu errado', isLoading: false });
     }
   }, []);
 
@@ -48,8 +50,7 @@ export function UserProvider({ children }: UserProviderProps): React.JSX.Element
       logger.error(err);
       // noop
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, []);
+  }, [checkSession]);
 
   return <UserContext.Provider value={{ ...state, checkSession }}>{children}</UserContext.Provider>;
 }

@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 
 import { config } from '@/config';
 import { Budget } from '@/components/dashboard/overview/budget';
+import { Delinquency } from '@/components/dashboard/overview/DelinquencyProps';
 import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
 import { Sales } from '@/components/dashboard/overview/sales';
@@ -26,6 +27,9 @@ export default function Page(): React.JSX.Element {
       </Grid>
       <Grid lg={3} sm={6} xs={12}>
         <TasksProgress sx={{ height: '100%' }} value={75.5} />
+      </Grid>
+      <Grid lg={3} sm={6} xs={12}>
+        <Delinquency percentage={5} sx={{ height: '100%' }} />
       </Grid>
       <Grid lg={3} sm={6} xs={12}>
         <TotalProfit sx={{ height: '100%' }} value="$15k" />

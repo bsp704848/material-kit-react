@@ -3,14 +3,16 @@
 import * as React from 'react';
 import RouterLink from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Drawer } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ArrowSquareUpRight as ArrowSquareUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareUpRight';
-import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
+
+// Remova Button e ArrowSquareUpRightIcon se não forem utilizados
+// import Button from '@mui/material/Button';
+// import { ArrowSquareUpRight as ArrowSquareUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareUpRight';
+// import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
 
 import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
@@ -72,15 +74,9 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
             p: '4px 12px',
           }}
         >
-          <Box sx={{ flex: '1 1 auto' }}>
-            <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-              Workspace
-            </Typography>
-            <Typography color="inherit" variant="subtitle1">
-              Devias
-            </Typography>
-          </Box>
-          <CaretUpDownIcon />
+          <Box sx={{ flex: '1 1 auto' }}>{/* Comentários removidos */}</Box>
+          {/* Remova CaretUpDownIcon se não for utilizado */}
+          {/* <CaretUpDownIcon /> */}
         </Box>
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
@@ -89,23 +85,17 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Stack spacing={2} sx={{ p: '12px' }}>
-        <div>
-          <Typography color="var(--mui-palette-neutral-100)" variant="subtitle2">
-            Need more features?
-          </Typography>
-          <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-            Check out our Pro solution template.
-          </Typography>
-        </div>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <div>{/* Comentários removidos */}</div>
+        {/* Imagem e botão removidos */}
+        {/* <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <Box
             component="img"
             alt="Pro version"
             src="/assets/devias-kit-pro.png"
             sx={{ height: 'auto', width: '160px' }}
           />
-        </Box>
-        <Button
+        </Box> */}
+        {/* <Button
           component="a"
           endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
           fullWidth
@@ -115,7 +105,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
           variant="contained"
         >
           Pro version
-        </Button>
+        </Button> */}
       </Stack>
     </Drawer>
   );
