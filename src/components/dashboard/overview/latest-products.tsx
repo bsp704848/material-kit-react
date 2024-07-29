@@ -14,6 +14,7 @@ import type { SxProps } from '@mui/material/styles';
 import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import { DotsThreeVertical as DotsThreeVerticalIcon } from '@phosphor-icons/react/dist/ssr/DotsThreeVertical';
 import dayjs from 'dayjs';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export interface Product {
   id: string;
@@ -55,8 +56,13 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
               secondary={`Updated ${dayjs(product.updatedAt).format('MMM D, YYYY')}`}
               secondaryTypographyProps={{ variant: 'body2' }}
             />
+
+
             <IconButton edge="end">
               <DotsThreeVerticalIcon weight="bold" />
+            </IconButton>
+            <IconButton edge="end">
+            <DeleteIcon />
             </IconButton>
           </ListItem>
         ))}
