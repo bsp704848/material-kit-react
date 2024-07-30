@@ -40,18 +40,18 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
 
-  const handleClickOpen = (product: Product) => {
+  const handleClickOpen: (product: Product) => void = () => {
     setSelectedProduct(product);
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose: () => void = () => {
     setOpen(false);
     setSelectedProduct(null);
     setQuantity(1);
   };
 
-  const handleQuantityChange = (amount: number) => {
+  const handleQuantityChange: (amount: number) => void = () => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity + amount));
   };
 
@@ -61,7 +61,7 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
       <Divider />
       <List>
         {products.map((product, index) => (
-          <ListItem divider={index < products.length - 1} key={product.id} onClick={() => handleClickOpen(product)}>
+          <ListItem divider={index < products.length - 1} key={product.id} onClick={() => { handleClickOpen(product); }}>
             <ListItemAvatar>
               {product.image ? (
                 <Box component="img" src={product.image} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
@@ -102,8 +102,7 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
           View all
         </Button>
       </CardActions>
-      {selectedProduct && (
-        <Dialog open={open} onClose={handleClose}>
+      {selectedProduct ? <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Product Details</DialogTitle>
           <DialogContent>
             <Box display="flex" alignItems="center">
@@ -114,17 +113,16 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
               </Box>
             </Box>
             <Box mt={2} display="flex" alignItems="center">
-              <Button variant="outlined" onClick={() => handleQuantityChange(-1)}>-</Button>
+              <Button variant="outlined" onClick={() => { handleQuantityChange(-1); }}>-</Button>
               <TextField value={quantity} sx={{ width: '50px', textAlign: 'center', mx: 2 }} />
-              <Button variant="outlined" onClick={() => handleQuantityChange(1)}>+</Button>
+              <Button variant="outlined" onClick={() => { handleQuantityChange(1); }}>+</Button>
             </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Close</Button>
             <Button variant="contained" color="primary">Add to Cart</Button>
           </DialogActions>
-        </Dialog>
-      )}
+        </Dialog> : null}
     </Card>
   );
 }

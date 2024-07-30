@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -19,27 +19,45 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../../server/lib/firebase';
 
 export interface Product {
   id: string;
-  image: string;
-  name: string;
+  imageUrl: string;
+  productName: string;
   updatedAt: Date;
 }
 
 export interface LatestProductsProps {
-  products?: Product[];
   sx?: SxProps;
 }
 
-export function LatestProducts({ products = [], sx }: LatestProductsProps): React.JSX.Element {
+export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
+  const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const productsData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          updatedAt: data.createdAt ? data.createdAt.toDate() : new Date() // Convert Firestore timestamp to Date object
+        };
+      }) as Product[];
+      setProducts(productsData);
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleClickOpen = (product: Product) => {
     setSelectedProduct(product);
@@ -53,7 +71,7 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
   };
 
   const handleQuantityChange = (amount: number) => {
-    setQuantity((prevQuantity) => Math.max(1, prevQuantity + amount));
+    setQuantity(prevQuantity => Math.max(1, prevQuantity + amount));
   };
 
   return (
@@ -64,8 +82,8 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
         {products.map((product, index) => (
           <ListItem divider={index < products.length - 1} key={product.id} onClick={() => handleClickOpen(product)}>
             <ListItemAvatar>
-              {product.image ? (
-                <Box component="img" src={product.image} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
+              {product.imageUrl ? (
+                <Box component="img" src={product.imageUrl} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
               ) : (
                 <Box
                   sx={{
@@ -78,7 +96,7 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
               )}
             </ListItemAvatar>
             <ListItemText
-              primary={product.name}
+              primary={product.productName}
               primaryTypographyProps={{ variant: 'subtitle1' }}
               secondary={`Updated ${dayjs(product.updatedAt).format('MMM D, YYYY')}`}
               secondaryTypographyProps={{ variant: 'body2' }}
@@ -108,9 +126,9 @@ export function LatestProducts({ products = [], sx }: LatestProductsProps): Reac
           <DialogTitle>Product Details</DialogTitle>
           <DialogContent>
             <Box display="flex" alignItems="center">
-              <Box component="img" src={selectedProduct.image} sx={{ borderRadius: 1, height: '100px', width: '100px' }} />
+              <Box component="img" src={selectedProduct.imageUrl} sx={{ borderRadius: 1, height: '100px', width: '100px' }} />
               <Box ml={2}>
-                <Typography variant="h6">{selectedProduct.name}</Typography>
+                <Typography variant="h6">{selectedProduct.productName}</Typography>
                 <Typography variant="body2">Price: $1299</Typography>
               </Box>
             </Box>
