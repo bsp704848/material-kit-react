@@ -86,7 +86,7 @@ export function ProductForm(): React.JSX.Element {
 
   return (
     <div>
-      <IconButton onClick={() => router.push('/')}>
+      <IconButton onClick={() => { router.push('/'); }}>
         <HomeIcon />
       </IconButton>
       {alert && <Alert severity={alert.includes("successfully") ? "success" : "error"}>{alert}</Alert>}

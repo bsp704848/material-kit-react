@@ -1,3 +1,4 @@
+// latestProductsComponent.jsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
@@ -24,6 +25,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
+import Link from 'next/link';
 
 export interface Product {
   id: string;
@@ -48,7 +50,6 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
 
-
   useEffect(() => {
     const fetchProducts = async (): Promise<void> => {
       const querySnapshot = await getDocs(collection(db, 'products'));
@@ -71,7 +72,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
     setOpen(true);
   };
 
-  const handleClose = ():void => {
+  const handleClose = (): void => {
     setOpen(false);
     setSelectedProduct(null);
     setQuantity(1);
@@ -80,6 +81,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
   const handleQuantityChange = (amount: number): void => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity + amount));
   };
+
   const deleteProductById = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'products', id));
     setProducts(products.filter((product) => product.id !== id));
@@ -91,10 +93,18 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
       <Divider />
       <List>
         {products.map((product, index) => (
-          <ListItem divider={index < products.length - 1} key={product.id} onClick={() => { handleClickOpen(product); }}>
+          <ListItem
+            divider={index < products.length - 1}
+            key={product.id}
+            onClick={() => { handleClickOpen(product); }}
+          >
             <ListItemAvatar>
               {product.imageUrl ? (
-                <Box component="img" src={product.imageUrl} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
+                <Box
+                  component="img"
+                  src={product.imageUrl}
+                  sx={{ borderRadius: 1, height: '48px', width: '48px' }}
+                />
               ) : (
                 <Box
                   sx={{
@@ -133,9 +143,11 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
                 </>
               }
             />
-            <IconButton edge="end">
-              <DotsThreeVerticalIcon weight="bold" />
-            </IconButton>
+            <Link href={`/dashboard/products/edit?id=${product.id}`}>
+              <IconButton edge="end">
+                <DotsThreeVerticalIcon weight="bold" />
+              </IconButton>
+            </Link>
             <IconButton
               edge="end"
               onClick={(e) => {
@@ -160,57 +172,82 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
           View all
         </Button>
       </CardActions>
-      {selectedProduct ? <Dialog open={open} onClose={handleClose}>
+      {selectedProduct ? (
+        <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Product Details</DialogTitle>
           <DialogContent>
             <Box display="flex" alignItems="center">
-              <Box component="img" src={selectedProduct.imageUrl} sx={{ borderRadius: 1, height: '100px', width: '100px' }} />
+              <Box
+                component="img"
+                src={selectedProduct.imageUrl}
+                sx={{ borderRadius: 1, height: '100px', width: '100px' }}
+              />
               <Box ml={2}>
                 <Typography variant="h6">{selectedProduct.productName}</Typography>
-                <Typography variant="body2">Company: {selectedProduct.company}</Typography>
-                <Typography variant="body2">Location: {selectedProduct.location}</Typography>
+                <Typography variant="body2">
+                  Company: {selectedProduct.company}
+                </Typography>
+                <Typography variant="body2">
+                  Location: {selectedProduct.location}
+                </Typography>
                 <Typography variant="body2">Price: ₹{selectedProduct.price}</Typography>
-                <Typography variant='body2'>Quantity: {selectedProduct.quantity}</Typography>
+                <Typography variant="body2">Quantity: {selectedProduct.quantity}</Typography>
               </Box>
             </Box>
             <Box mt={2} display="flex" alignItems="center">
-              <Button variant="outlined" onClick={() => { handleQuantityChange(-1); }}>-</Button>
-              <TextField value={quantity} sx={{ width: '50px', textAlign: 'center', mx: 2 }} />
-              <Button variant="outlined" onClick={() => { handleQuantityChange(1); }}>+</Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  handleQuantityChange(-1);
+                }}
+              >
+                -
+              </Button>
+              <TextField
+                value={quantity}
+                sx={{ width: '50px', textAlign: 'center', mx: 2 }}
+              />
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  handleQuantityChange(1);
+                }}
+              >
+                +
+              </Button>
             </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Close</Button>
-            <Button variant="contained" color="primary">Add to Cart</Button>
-          </DialogActions>
-        </Dialog> : null}
-        <Dialog
-          open={deleteOpen}
-          onClose={() => { setDeleteOpen(false); }}
-        >
-          <DialogTitle>Are you sure you want to delete this product?</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2">
-              Product: {deleteProduct?.productName}
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => { setDeleteOpen(false); }}>Cancel</Button>
-            <Button
-              color="secondary"
-              onClick={() => {
-                if (deleteProduct) {
-                  // Call the function to delete the product here
-                  void deleteProductById(deleteProduct.id);
-                  setDeleteOpen(false);
-                }
-              }}
-            >
-              Delete
+            <Button variant="contained" color="primary">
+              Add to Cart
             </Button>
           </DialogActions>
         </Dialog>
-
+      ) : null}
+      <Dialog open={deleteOpen} onClose={() => { setDeleteOpen(false); }}>
+        <DialogTitle>Are you sure you want to delete this product?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Product: {deleteProduct?.productName}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setDeleteOpen(false); }}>Cancel</Button>
+          <Button
+            color="secondary"
+            onClick={() => {
+              if (deleteProduct) {
+                // Call the function to delete the product here
+                void deleteProductById(deleteProduct.id);
+                setDeleteOpen(false);
+              }
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }
