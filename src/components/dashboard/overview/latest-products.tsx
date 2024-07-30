@@ -22,7 +22,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
 
 export interface Product {
@@ -45,6 +45,9 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -77,6 +80,10 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
   const handleQuantityChange = (amount: number) => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity + amount));
   };
+  const deleteProductById = async (id: string) => {
+    await deleteDoc(doc(db, 'products', id));
+    setProducts(products.filter((product) => product.id !== id));
+  };
 
   return (
     <Card sx={sx}>
@@ -84,7 +91,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
       <Divider />
       <List>
         {products.map((product, index) => (
-          <ListItem divider={index < products.length - 1} key={product.id} onClick={() => handleClickOpen(product)}>
+          <ListItem divider={index < products.length - 1} key={product.id} onClick={() => { handleClickOpen(product); }}>
             <ListItemAvatar>
               {product.imageUrl ? (
                 <Box component="img" src={product.imageUrl} sx={{ borderRadius: 1, height: '48px', width: '48px' }} />
@@ -129,7 +136,14 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
             <IconButton edge="end">
               <DotsThreeVerticalIcon weight="bold" />
             </IconButton>
-            <IconButton edge="end">
+            <IconButton
+              edge="end"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteProduct(product);
+                setDeleteOpen(true);
+              }}
+            >
               <DeleteIcon />
             </IconButton>
           </ListItem>
@@ -160,9 +174,9 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
               </Box>
             </Box>
             <Box mt={2} display="flex" alignItems="center">
-              <Button variant="outlined" onClick={() => handleQuantityChange(-1)}>-</Button>
+              <Button variant="outlined" onClick={() => { handleQuantityChange(-1); }}>-</Button>
               <TextField value={quantity} sx={{ width: '50px', textAlign: 'center', mx: 2 }} />
-              <Button variant="outlined" onClick={() => handleQuantityChange(1)}>+</Button>
+              <Button variant="outlined" onClick={() => { handleQuantityChange(1); }}>+</Button>
             </Box>
           </DialogContent>
           <DialogActions>
@@ -170,6 +184,33 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
             <Button variant="contained" color="primary">Add to Cart</Button>
           </DialogActions>
         </Dialog> : null}
+        <Dialog
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+        >
+          <DialogTitle>Are you sure you want to delete this product?</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2">
+              Product: {deleteProduct?.productName}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button
+              color="secondary"
+              onClick={() => {
+                if (deleteProduct) {
+                  // Call the function to delete the product here
+                  deleteProductById(deleteProduct.id);
+                  setDeleteOpen(false);
+                }
+              }}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+
     </Card>
   );
 }
