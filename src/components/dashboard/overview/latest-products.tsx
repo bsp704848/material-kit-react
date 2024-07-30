@@ -50,7 +50,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
 
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = async (): Promise<void> => {
       const querySnapshot = await getDocs(collection(db, 'products'));
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -63,24 +63,24 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
       setProducts(productsData);
     };
 
-    fetchProducts();
+    void fetchProducts();
   }, []);
 
-  const handleClickOpen = (product: Product) => {
+  const handleClickOpen = (product: Product): void => {
     setSelectedProduct(product);
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = ():void => {
     setOpen(false);
     setSelectedProduct(null);
     setQuantity(1);
   };
 
-  const handleQuantityChange = (amount: number) => {
+  const handleQuantityChange = (amount: number): void => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity + amount));
   };
-  const deleteProductById = async (id: string) => {
+  const deleteProductById = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'products', id));
     setProducts(products.filter((product) => product.id !== id));
   };
@@ -186,7 +186,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
         </Dialog> : null}
         <Dialog
           open={deleteOpen}
-          onClose={() => setDeleteOpen(false)}
+          onClose={() => { setDeleteOpen(false); }}
         >
           <DialogTitle>Are you sure you want to delete this product?</DialogTitle>
           <DialogContent>
@@ -195,13 +195,13 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button onClick={() => { setDeleteOpen(false); }}>Cancel</Button>
             <Button
               color="secondary"
               onClick={() => {
                 if (deleteProduct) {
                   // Call the function to delete the product here
-                  deleteProductById(deleteProduct.id);
+                  void deleteProductById(deleteProduct.id);
                   setDeleteOpen(false);
                 }
               }}
