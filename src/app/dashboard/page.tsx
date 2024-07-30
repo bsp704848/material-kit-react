@@ -4,7 +4,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import dayjs from 'dayjs';
 import { Button } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-
+import Link from 'next/link';
 import { config } from '@/config';
 // import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
@@ -21,9 +21,11 @@ export default function Page(): React.JSX.Element {
   return (
     <Grid container spacing={3} justifyContent="flex-end" alignItems="flex-start">
       <div>
-        <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
-          Add
-        </Button>
+      <Link href="/dashboard/products/new">
+            <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
+              Add
+            </Button>
+          </Link>
       </div>
       <Grid lg={12} md={12} xs={12}>
 
