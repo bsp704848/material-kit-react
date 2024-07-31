@@ -12,7 +12,6 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
-import type { SxProps } from '@mui/material/styles';
 import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowRight';
 import { DotsThreeVertical as DotsThreeVerticalIcon } from '@phosphor-icons/react/dist/ssr/DotsThreeVertical';
 import dayjs from 'dayjs';
@@ -23,11 +22,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
 import Link from 'next/link';
-import { updateDoc } from 'firebase/firestore';
-
 
 export interface Product {
   id: string;
@@ -36,7 +33,7 @@ export interface Product {
   company: string;
   location: string;
   price: string;
-  quantity: string;
+  quantity: number;
   updatedAt: Date;
 }
 
@@ -60,6 +57,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
         return {
           id: doc.id,
           ...data,
+          quantity: data.quantity || 1, // Handle default quantity
           updatedAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convert Firestore timestamp to Date object
         };
       }) as Product[];
@@ -100,7 +98,6 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
     );
   };
 
-
   return (
     <Card sx={sx}>
       <CardHeader title="Latest products" />
@@ -110,7 +107,8 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
           <ListItem
             divider={index < products.length - 1}
             key={product.id}
-            onClick={() => { handleClickOpen(product); }}
+
+            sx={{ display: 'flex', alignItems: 'center' }}
           >
             <ListItemAvatar>
               {product.imageUrl ? (
@@ -134,30 +132,48 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
               primary={product.productName}
               primaryTypographyProps={{ variant: 'subtitle1' }}
               secondary={
-                <Box display="flex" flexDirection="column">
-                  <Box display="flex" justifyContent="space-between">
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box flexDirection="column">
+
+
+                  <Box mr={2} display="flex" gap="20px" alignItems="center">
                     <Typography component="span" variant="body2" color="text.primary">
                       Company: {product.company}
                     </Typography>
                     <Typography component="span" variant="body2" color="text.secondary">
-                      Location: {product.location}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography component="span" variant="body2" color="text.secondary">
                       Quantity: {product.quantity}
                     </Typography>
                     <Typography component="span" variant="body2" color="text.secondary">
+                       {product.location}
+                    </Typography>
+
+                  </Box>
+                  <Box mr={2} display="flex" gap="20px" alignItems="center">
+
+                    <Typography component="span" variant="body2" color="text.secondary">
                       ${product.price}
                     </Typography>
-                  </Box>
                   <Typography component="span" variant="body2" color="text.secondary">
-                    Updated {dayjs(product.updatedAt).format('MMM D, YYYY')}
-                  </Typography>
+                      Updated {dayjs(product.updatedAt).format('MMM D, YYYY')}
+                    </Typography>
+                  </Box>
+
+                  </Box>
+
+                  {/* <Box ml={2} display="flex" alignItems="center" gap="5px">
+
+
+                    <Button variant="outlined">
+                    update Stock
+                    </Button>
+
+                  </Box> */}
                 </Box>
               }
             />
-
+            <Button variant="outlined" onClick={() => { handleClickOpen(product); }}>
+              Update stock
+            </Button>
             <Link href={`/dashboard/products/edit?id=${product.id}`}>
               <IconButton edge="end">
                 <DotsThreeVerticalIcon weight="bold" />
@@ -188,85 +204,88 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
         </Button>
       </CardActions>
       {selectedProduct ? (
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Product Details</DialogTitle>
-          <DialogContent>
-            <Box display="flex" alignItems="center">
-              <Box
-                component="img"
-                src={selectedProduct.imageUrl}
-                sx={{ borderRadius: 1, height: '100px', width: '100px' }}
-              />
-              <Box ml={2}>
-                <Typography variant="h6">{selectedProduct.productName}</Typography>
-                <Typography variant="body2">
-                  Company: {selectedProduct.company}
-                </Typography>
-                <Typography variant="body2">
-                  Location: {selectedProduct.location}
-                </Typography>
-                <Typography variant="body2">Price: ₹{selectedProduct.price}</Typography>
-                <Typography variant="body2">Quantity: {selectedProduct.quantity}</Typography>
-              </Box>
-            </Box>
-            <Box mt={2} display="flex" alignItems="center">
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  handleQuantityChange(-1);
-                }}
-              >
-                -
-              </Button>
-              <TextField
-                value={quantity}
-                sx={{ width: '50px', textAlign: 'center', mx: 2 }}
-                onChange={(e) => setQuantity(Number(e.target.value))} // Optional if you want manual input
+  <Dialog open={open} onClose={handleClose} >
+    <DialogTitle>Product Details</DialogTitle>
+    <DialogContent>
+      <Box display="flex" flexDirection="column" alignItems="center" sx={{mx: 'auto', width: 250}}>
+        <Box
+          component="img"
+          src={selectedProduct.imageUrl}
+          sx={{ borderRadius: 0.5, height: '150px', width: '200px', mb: 2 ,  }}
+        />
+        <Typography variant="h6" textAlign="center">
+          {selectedProduct.productName}
+        </Typography>
+        <Typography variant="body2" textAlign="center">
+          Company: {selectedProduct.company}
+        </Typography>
+        <Typography variant="body2" textAlign="center">
+          Location: {selectedProduct.location}
+        </Typography>
+        <Typography variant="body2" textAlign="center">
+          Price: ${selectedProduct.price}
+        </Typography>
+        <Typography variant="body2" textAlign="center" mb={2}>
+          Quantity: {selectedProduct.quantity}
+        </Typography>
+      </Box>
+      <Box mt={2} display="flex" justifyContent="center" alignItems="center">
+      <Button
+        variant="outlined"
+        onClick={() => {
+          handleQuantityChange(-1);
+        }}
+        sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
+      >
+          -
+        </Button>
+        <TextField
+          value={quantity}
+          sx={{ width: '50px', textAlign: 'center', mx: 2 }}
+          onChange={(e) => { setQuantity(Number(e.target.value)); }}
+        />
+        <Button
+          variant="outlined"
+          onClick={() => {
+            handleQuantityChange(1);
+          }}
+          sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
+        >
+          +
+        </Button>
+      </Box>
+    </DialogContent>
+    <DialogActions sx={{ justifyContent: 'center' }}>
+      <Button onClick={handleClose}>Close</Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={async () => {
+          if (selectedProduct) {
+            await updateProductQuantity(selectedProduct.id, quantity);
+            handleClose();
+          }
+        }}
+      >
+        Update stock
+      </Button>
+    </DialogActions>
+  </Dialog>
+) : null}
 
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  handleQuantityChange(1);
-                }}
-              >
-                +
-              </Button>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={async () => {
-                if (selectedProduct) {
-                  await updateProductQuantity(selectedProduct.id, quantity);
-                  handleClose();
-                }
-              }}
-            >
-              Update stock
-            </Button>
-
-          </DialogActions>
-        </Dialog>
-      ) : null}
       <Dialog open={deleteOpen} onClose={() => { setDeleteOpen(false); }}>
-        <DialogTitle>Are you sure you want to delete this product?</DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <Typography variant="body2">
-            Product: {deleteProduct?.productName}
-          </Typography>
+          <Typography>Are you sure you want to delete this product?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setDeleteOpen(false); }}>Cancel</Button>
           <Button
+            variant="contained"
             color="secondary"
-            onClick={() => {
+            onClick={async () => {
               if (deleteProduct) {
-                // Call the function to delete the product here
-                void deleteProductById(deleteProduct.id);
+                await deleteProductById(deleteProduct.id);
                 setDeleteOpen(false);
               }
             }}
@@ -278,4 +297,3 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
     </Card>
   );
 }
-
