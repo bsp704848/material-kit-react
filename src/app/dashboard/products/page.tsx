@@ -1,11 +1,11 @@
-import { LatestProducts } from '@/components/dashboard/products/latest-products';
 import React from 'react';
+import { LatestProducts } from '@/components/dashboard/overview/latest-products';
 
 
 export default function page() {
   return (
     <div>
-      <LatestProducts />
+    <LatestProducts />
     </div>
   );
 }

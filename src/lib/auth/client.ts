@@ -1,20 +1,9 @@
+// src/lib/auth/client.ts
 'use client';
-
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../../server/lib/firebase.js'
 import type { User } from '@/types/user';
-
-function generateToken(): string {
-  const arr = new Uint8Array(12);
-  window.crypto.getRandomValues(arr);
-  return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
-}
-
-const user = {
-  id: 'USR-000',
-  avatar: '/assets/avatar.png',
-  firstName: 'Sofia',
-  lastName: 'Rivers',
-  email: 'sofia@devias.io',
-} satisfies User;
+import { doc, setDoc } from 'firebase/firestore'
 
 export interface SignUpParams {
   firstName: string;
@@ -37,62 +26,80 @@ export interface ResetPasswordParams {
 }
 
 class AuthClient {
-  async signUp(_: SignUpParams): Promise<{ error?: string }> {
-    // Make API request
+  async signUp(params: SignUpParams): Promise<{ error?: string }> {
+    const { firstName, lastName, email, password } = params;
 
-    // We do not handle the API, so we'll just generate a token and store it in localStorage.
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    return {};
-  }
+      await setDoc(doc(firestore, 'users', user.uid), {
+        firstName,
+        lastName,
+        email
+      });
 
-  async signInWithOAuth(_: SignInWithOAuthParams): Promise<{ error?: string }> {
-    return { error: 'Social authentication not implemented' };
+      return {};
+    } catch (error) {
+      return { error: (error as Error).message };
+    }
   }
 
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
-    const { email, password } = params;
-
-    // Make API request
-
-    // We do not handle the API, so we'll check if the credentials match with the hardcoded ones.
-    if (email !== 'sofia@devias.io' || password !== 'Secret1') {
-      return { error: 'Invalid credentials' };
+    try {
+      await signInWithEmailAndPassword(auth, params.email, params.password);
+      return {};
+    } catch (error) {
+      return { error: (error as Error).message };
     }
-
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
-
-    return {};
   }
 
-  async resetPassword(_: ResetPasswordParams): Promise<{ error?: string }> {
+  async resetPassword(params: ResetPasswordParams): Promise<{ error?: string }> {
+    // Implement password reset logic with Firebase
     return { error: 'Password reset not implemented' };
   }
 
-  async updatePassword(_: ResetPasswordParams): Promise<{ error?: string }> {
-    return { error: 'Update reset not implemented' };
-  }
-
   async getUser(): Promise<{ data?: User | null; error?: string }> {
-    // Make API request
-
-    // We do not handle the API, so just check if we have a token in localStorage.
-    const token = localStorage.getItem('custom-auth-token');
-
-    if (!token) {
-      return { data: null };
-    }
-
-    return { data: user };
+    return new Promise((resolve) => {
+      onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser) {
+          const user: User = {
+            id: firebaseUser.uid,
+            avatar: '/assets/avatar.png',
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName: firebaseUser.displayName?.split(' ')[1] || '',
+            email: firebaseUser.email || '',
+          };
+          resolve({ data: user });
+        } else {
+          resolve({ data: null });
+        }
+      });
+    });
   }
 
   async signOut(): Promise<{ error?: string }> {
-    localStorage.removeItem('custom-auth-token');
-
-    return {};
+    try {
+      await signOut(auth);
+      return {};
+    } catch (error) {
+      return { error: (error as Error).message };
+    }
   }
 }
 
 export const authClient = new AuthClient();
+
+
+
+
+
+
+
+// const user = {
+//   id: 'USR-000',
+//   avatar: '/assets/avatar.png',
+//   firstName: 'Sofia',
+//   lastName: 'Rivers',
+//   email: 'sofia@devias.io',
+// } satisfies User;
