@@ -1,9 +1,9 @@
 // src/lib/auth/client.ts
 'use client';
+import { auth, db } from '../../../server/lib/firebase'; // Update this import
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../../server/lib/firebase.js'
+import { doc, setDoc } from 'firebase/firestore';
 import type { User } from '@/types/user';
-import { doc, setDoc } from 'firebase/firestore'
 
 export interface SignUpParams {
   firstName: string;
@@ -33,7 +33,7 @@ class AuthClient {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await setDoc(doc(firestore, 'users', user.uid), {
+      await setDoc(doc(db, 'users', user.uid), { // Use db instead of firestore
         firstName,
         lastName,
         email
@@ -89,17 +89,3 @@ class AuthClient {
 }
 
 export const authClient = new AuthClient();
-
-
-
-
-
-
-
-// const user = {
-//   id: 'USR-000',
-//   avatar: '/assets/avatar.png',
-//   firstName: 'Sofia',
-//   lastName: 'Rivers',
-//   email: 'sofia@devias.io',
-// } satisfies User;
