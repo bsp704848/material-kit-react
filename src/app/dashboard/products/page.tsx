@@ -1,11 +1,17 @@
-import React from 'react';
+// page.tsx
+"use client"
+
+import React, { useState } from 'react';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
+import { ProductsFilters } from '@/components/dashboard/products/products-filter';
 
+export default function Page() {
+  const [searchTerm, setSearchTerm] = useState('');
 
-export default function page() {
   return (
     <div>
-    <LatestProducts />
+      <ProductsFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <LatestProducts searchTerm={searchTerm} />
     </div>
   );
 }

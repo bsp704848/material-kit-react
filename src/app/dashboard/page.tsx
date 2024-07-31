@@ -29,7 +29,7 @@ export default function Page(): React.JSX.Element {
       </div>
       <Grid lg={12} md={12} xs={12}>
 
-        <LatestProducts sx={{ height: '100%' }}/>
+        <LatestProducts sx={{ height: '100%' }} searchTerm=""/>
       </Grid>
       {/* <Grid lg={3} sm={6} xs={12}>
         <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />

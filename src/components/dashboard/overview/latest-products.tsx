@@ -1,4 +1,4 @@
-// latestProductsComponent.jsx
+// latestProductsComponent.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
@@ -39,9 +39,10 @@ export interface Product {
 
 export interface LatestProductsProps {
   sx?: SxProps;
+  searchTerm: string;  // Add this line
 }
 
-export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
+export function LatestProducts({ sx, searchTerm }: LatestProductsProps): React.JSX.Element {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -66,6 +67,11 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
 
     void fetchProducts();
   }, []);
+
+  // Filter products based on search term
+  const filteredProducts = products.filter((product) =>
+    product.productName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleClickOpen = (product: Product): void => {
     setSelectedProduct(product);
@@ -103,9 +109,9 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
       <CardHeader title="Latest products" />
       <Divider />
       <List>
-        {products.map((product, index) => (
+        {filteredProducts.map((product, index) => (
           <ListItem
-            divider={index < products.length - 1}
+            divider={index < filteredProducts.length - 1}
             key={product.id}
 
             sx={{ display: 'flex', alignItems: 'center' }}
