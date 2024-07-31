@@ -1,11 +1,11 @@
+'use client'
 import * as React from 'react';
-import type { Metadata } from 'next';
 import Grid from '@mui/material/Unstable_Grid2';
 import dayjs from 'dayjs';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import Link from 'next/link';
-import { config } from '@/config';
+
 // import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
@@ -15,21 +15,41 @@ import { Sales } from '@/components/dashboard/overview/sales';
 // import { TotalProfit } from '@/components/dashboard/overview/total-profit';
 import { Traffic } from '@/components/dashboard/overview/traffic';
 
-export const metadata = { title: `Overview | Dashboard | ${config.site.name}` } satisfies Metadata;
+
 
 export default function Page(): React.JSX.Element {
+  const [loading, setLoading] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    // Simulate data loading with a timeout
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Adjust the timeout as needed
+
+    return () => { clearTimeout(timer); };
+  }, []);
+
+  if (loading) {
+    return (
+      <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
+        <Grid item>
+          <CircularProgress />
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <Grid container spacing={3} justifyContent="flex-end" alignItems="flex-start">
-      <div>
-      <Link href="/dashboard/products/new">
-            <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
-              Add
-            </Button>
-          </Link>
-      </div>
+      <Grid item>
+        <Link href="/dashboard/products/new">
+          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
+            Add
+          </Button>
+        </Link>
+      </Grid>
       <Grid lg={12} md={12} xs={12}>
-
-        <LatestProducts sx={{ height: '100%' }} searchTerm=""/>
+        <LatestProducts sx={{ height: '100%' }} searchTerm="" />
       </Grid>
       {/* <Grid lg={3} sm={6} xs={12}>
         <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />
@@ -45,6 +65,7 @@ export default function Page(): React.JSX.Element {
       </Grid> */}
       <Grid lg={8} xs={12}>
         <Sales
+
           chartSeries={[
             { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
             { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },

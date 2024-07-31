@@ -25,29 +25,20 @@ export function SideNav(): React.JSX.Element {
   return (
     <Box
       sx={{
-        '--SideNav-background': 'var(--mui-palette-neutral-950)',
-        '--SideNav-color': 'var(--mui-palette-common-white)',
-        '--NavItem-color': 'var(--mui-palette-neutral-300)',
-        '--NavItem-hover-background': 'rgba(255, 255, 255, 0.04)',
-        '--NavItem-active-background': 'var(--mui-palette-primary-main)',
-        '--NavItem-active-color': 'var(--mui-palette-primary-contrastText)',
-        '--NavItem-disabled-color': 'var(--mui-palette-neutral-500)',
-        '--NavItem-icon-color': 'var(--mui-palette-neutral-400)',
-        '--NavItem-icon-active-color': 'var(--mui-palette-primary-contrastText)',
-        '--NavItem-icon-disabled-color': 'var(--mui-palette-neutral-600)',
-        bgcolor: 'var(--SideNav-background)',
-        color: 'var(--SideNav-color)',
+        bgcolor: 'background.default',
+        color: 'text.primary',
         display: { xs: 'none', lg: 'flex' },
         flexDirection: 'column',
         height: '100%',
-        left: 0,
-        maxWidth: '100%',
         position: 'fixed',
-        scrollbarWidth: 'none',
+        width: 240, // Fixed width for the sidebar
         top: 0,
-        width: 'var(--SideNav-width)',
-        zIndex: 'var(--SideNav-zIndex)',
-        '&::-webkit-scrollbar': { display: 'none' },
+        left: 0,
+        zIndex: 1200, // MUI default app bar zIndex
+        borderRight: '1px solid',
+        borderColor: 'divider',
+        overflowY: 'auto', // Scrollable content if needed
+        boxShadow: 1, // Shadow for separation
       }}
     >
       <Stack spacing={2} sx={{ p: 3 }}>
@@ -57,59 +48,31 @@ export function SideNav(): React.JSX.Element {
         <Box
           sx={{
             alignItems: 'center',
-            backgroundColor: 'var(--mui-palette-neutral-950)',
-            border: '1px solid var(--mui-palette-neutral-700)',
-            borderRadius: '12px',
-            cursor: 'pointer',
+            backgroundColor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: '8px',
             display: 'flex',
-            p: '4px 12px',
+            p: '6px 12px',
+            boxShadow: 1,
           }}
         >
           <Box sx={{ flex: '1 1 auto' }}>
-            <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-              Workspace
+            <Typography color="text.secondary" variant="body2">
+              Warehouse
             </Typography>
-            <Typography color="inherit" variant="subtitle1">
-              Devias
+            <Typography color="text.primary" variant="subtitle1">
+              Mangement
             </Typography>
           </Box>
           <CaretUpDownIcon />
         </Box>
       </Stack>
-      <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
+      <Divider sx={{ borderColor: 'divider' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
         {renderNavItems({ pathname, items: navItems })}
       </Box>
-      <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
-      <Stack spacing={2} sx={{ p: '12px' }}>
-        <div>
-          <Typography color="var(--mui-palette-neutral-100)" variant="subtitle2">
-            Need more features?
-          </Typography>
-          <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-            Check out our Pro solution template.
-          </Typography>
-        </div>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            alt="Pro version"
-            src="/assets/devias-kit-pro.png"
-            sx={{ height: 'auto', width: '160px' }}
-          />
-        </Box>
-        <Button
-          component="a"
-          endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
-          fullWidth
-          href="https://material-kit-pro-react.devias.io/"
-          sx={{ mt: 2 }}
-          target="_blank"
-          variant="contained"
-        >
-          Pro version
-        </Button>
-      </Stack>
+      <Divider sx={{ borderColor: 'divider' }} />
     </Box>
   );
 }
@@ -151,29 +114,33 @@ function NavItem({ disabled, external, href, icon, matcher, pathname, title }: N
           : { role: 'button' })}
         sx={{
           alignItems: 'center',
-          borderRadius: 1,
-          color: 'var(--NavItem-color)',
+          borderRadius: 4,
+          color: 'text.secondary',
           cursor: 'pointer',
           display: 'flex',
           flex: '0 0 auto',
           gap: 1,
-          p: '6px 16px',
+          p: '8px 16px',
           position: 'relative',
           textDecoration: 'none',
           whiteSpace: 'nowrap',
+          transition: 'background-color 0.3s, color 0.3s',
           ...(disabled && {
-            bgcolor: 'var(--NavItem-disabled-background)',
-            color: 'var(--NavItem-disabled-color)',
+            bgcolor: 'background.disabled',
+            color: 'text.disabled',
             cursor: 'not-allowed',
           }),
-          ...(active && { bgcolor: 'var(--NavItem-active-background)', color: 'var(--NavItem-active-color)' }),
+          ...(active && {
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+          }),
         }}
       >
         <Box sx={{ alignItems: 'center', display: 'flex', justifyContent: 'center', flex: '0 0 auto' }}>
           {Icon ? (
             <Icon
-              fill={active ? 'var(--NavItem-icon-active-color)' : 'var(--NavItem-icon-color)'}
-              fontSize="var(--icon-fontSize-md)"
+              fill={active ? 'primary.contrastText' : 'text.secondary'}
+              fontSize="medium"
               weight={active ? 'fill' : undefined}
             />
           ) : null}

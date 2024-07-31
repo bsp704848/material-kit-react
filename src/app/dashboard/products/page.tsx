@@ -11,6 +11,7 @@ export default function Page() {
   return (
     <div>
       <ProductsFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <br />
       <LatestProducts searchTerm={searchTerm} />
     </div>
   );
