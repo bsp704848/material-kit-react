@@ -20,6 +20,7 @@ import { db, storage } from '../../../../server/lib/firebase'; // Ensure you imp
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
+
 export function ProductForm(): React.JSX.Element {
   const [formValues, setFormValues] = React.useState({
     productName: '',
@@ -39,22 +40,20 @@ export function ProductForm(): React.JSX.Element {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files?.[0]) {
       setImageFile(e.target.files[0]);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    console.log("Form values:", formValues); // Debugging line
-
     if (imageFile) {
       const storageRef = ref(storage, `products/${imageFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, imageFile);
 
       uploadTask.on('state_changed',
-        (snapshot) => {
+        () => {
           // Progress function ...
         },
         (error) => {
@@ -89,7 +88,7 @@ export function ProductForm(): React.JSX.Element {
       <IconButton onClick={() => { router.push('/'); }}>
         <HomeIcon />
       </IconButton>
-      {alert && <Alert severity={alert.includes("successfully") ? "success" : "error"}>{alert}</Alert>}
+      {alert ? <Alert severity={alert.includes("successfully") ? "success" : "error"}>{alert}</Alert> : null}
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader subheader="Add a new product" title="Product" />

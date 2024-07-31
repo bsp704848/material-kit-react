@@ -54,7 +54,7 @@ class AuthClient {
     }
   }
 
-  async resetPassword(params: ResetPasswordParams): Promise<{ error?: string }> {
+  async resetPassword(_params: ResetPasswordParams): Promise<{ error?: string }> {
     // Implement password reset logic with Firebase
     return { error: 'Password reset not implemented' };
   }
