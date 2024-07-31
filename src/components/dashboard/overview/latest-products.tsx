@@ -26,6 +26,8 @@ import TextField from '@mui/material/TextField';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
 import Link from 'next/link';
+import { updateDoc } from 'firebase/firestore';
+
 
 export interface Product {
   id: string;
@@ -69,6 +71,7 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
 
   const handleClickOpen = (product: Product): void => {
     setSelectedProduct(product);
+    setQuantity(product.quantity); // Set the initial quantity
     setOpen(true);
   };
 
@@ -86,6 +89,17 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
     await deleteDoc(doc(db, 'products', id));
     setProducts(products.filter((product) => product.id !== id));
   };
+
+  const updateProductQuantity = async (productId: string, newQuantity: number): Promise<void> => {
+    const productRef = doc(db, 'products', productId);
+    await updateDoc(productRef, { quantity: newQuantity });
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId ? { ...product, quantity: newQuantity } : product
+      )
+    );
+  };
+
 
   return (
     <Card sx={sx}>
@@ -120,29 +134,30 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
               primary={product.productName}
               primaryTypographyProps={{ variant: 'subtitle1' }}
               secondary={
-                <>
-                  <Typography component="span" variant="body2" color="text.primary">
-                    {product.company}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    {product.location}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    {product.quantity}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="text.secondary">
-                    ₹{product.price}
-                  </Typography>
-                  <br />
+                <Box display="flex" flexDirection="column">
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography component="span" variant="body2" color="text.primary">
+                      Company: {product.company}
+                    </Typography>
+                    <Typography component="span" variant="body2" color="text.secondary">
+                      Location: {product.location}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography component="span" variant="body2" color="text.secondary">
+                      Quantity: {product.quantity}
+                    </Typography>
+                    <Typography component="span" variant="body2" color="text.secondary">
+                      ${product.price}
+                    </Typography>
+                  </Box>
                   <Typography component="span" variant="body2" color="text.secondary">
                     Updated {dayjs(product.updatedAt).format('MMM D, YYYY')}
                   </Typography>
-                </>
+                </Box>
               }
             />
+
             <Link href={`/dashboard/products/edit?id=${product.id}`}>
               <IconButton edge="end">
                 <DotsThreeVerticalIcon weight="bold" />
@@ -206,6 +221,8 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
               <TextField
                 value={quantity}
                 sx={{ width: '50px', textAlign: 'center', mx: 2 }}
+                onChange={(e) => setQuantity(Number(e.target.value))} // Optional if you want manual input
+
               />
               <Button
                 variant="outlined"
@@ -219,9 +236,19 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Close</Button>
-            <Button variant="contained" color="primary">
-              Add to Cart
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={async () => {
+                if (selectedProduct) {
+                  await updateProductQuantity(selectedProduct.id, quantity);
+                  handleClose();
+                }
+              }}
+            >
+              Update stock
             </Button>
+
           </DialogActions>
         </Dialog>
       ) : null}
@@ -251,3 +278,4 @@ export function LatestProducts({ sx }: LatestProductsProps): React.JSX.Element {
     </Card>
   );
 }
+
