@@ -1,6 +1,8 @@
 // latestProductsComponent.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import RouterLink from 'next/link';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -24,7 +26,9 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
-import Link from 'next/link';
+import { Link } from '@mui/material';
+import { paths } from '@/paths';
+
 
 export interface Product {
   id: string;
@@ -40,9 +44,10 @@ export interface Product {
 export interface LatestProductsProps {
   sx?: SxProps;
   searchTerm: string;  // Add this line
+  limit?: number;
 }
 
-export function LatestProducts({ sx, searchTerm }: LatestProductsProps): React.JSX.Element {
+export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): React.JSX.Element {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -71,7 +76,8 @@ export function LatestProducts({ sx, searchTerm }: LatestProductsProps): React.J
   // Filter products based on search term
   const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
+  .slice(0, limit)
 
   const handleClickOpen = (product: Product): void => {
     setSelectedProduct(product);
@@ -106,7 +112,7 @@ export function LatestProducts({ sx, searchTerm }: LatestProductsProps): React.J
 
   return (
     <Card sx={sx}>
-      <CardHeader title="Latest products" />
+      <CardHeader title="Latest products"  />
       <Divider />
       <List>
         {filteredProducts.map((product, index) => (
@@ -205,6 +211,7 @@ export function LatestProducts({ sx, searchTerm }: LatestProductsProps): React.J
           endIcon={<ArrowRightIcon fontSize="var(--icon-fontSize-md)" />}
           size="small"
           variant="text"
+          component={RouterLink} href={paths.dashboard.products}
         >
           View all
         </Button>

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import Button from '@mui/material/Button';
+import RouterLink from 'next/link';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -19,6 +20,9 @@ import { useRouter } from 'next/navigation';
 import { db, storage } from '../../../../server/lib/firebase'; // Ensure you import storage
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import Link from '@mui/material/Link';
+import { paths } from '@/paths';
+
 
 
 export function ProductForm(): React.JSX.Element {
@@ -85,8 +89,10 @@ export function ProductForm(): React.JSX.Element {
 
   return (
     <div>
-      <IconButton onClick={() => { router.push('/'); }}>
+      <IconButton  >
+        <Link component={RouterLink} href={paths.home} underline="none">
         <HomeIcon />
+        </Link>
       </IconButton>
       {alert ? <Alert severity={alert.includes("successfully") ? "success" : "error"}>{alert}</Alert> : null}
       <form onSubmit={handleSubmit}>

@@ -1,11 +1,12 @@
 'use client'
 import * as React from 'react';
+import RouterLink from 'next/link';
+import { paths } from '@/paths';
 import Grid from '@mui/material/Unstable_Grid2';
 import dayjs from 'dayjs';
 import { Button, CircularProgress } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-import Link from 'next/link';
-
+import Link from '@mui/material/Link';
 // import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
@@ -42,14 +43,14 @@ export default function Page(): React.JSX.Element {
   return (
     <Grid container spacing={3} justifyContent="flex-end" alignItems="flex-start">
       <Grid item>
-        <Link href="/dashboard/products/new">
+        <Link component={RouterLink} href={paths.dashboard.newproduct}>
           <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
             Add
           </Button>
         </Link>
       </Grid>
       <Grid lg={12} md={12} xs={12}>
-        <LatestProducts sx={{ height: '100%' }} searchTerm="" />
+        <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5}/>
       </Grid>
       {/* <Grid lg={3} sm={6} xs={12}>
         <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />
