@@ -49,6 +49,7 @@ export interface LatestProductsProps {
 
 export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): React.JSX.Element {
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);  // Add this line
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -68,6 +69,7 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
         };
       }) as Product[];
       setProducts(productsData);
+      setTotalProducts(productsData.length);  // Add this line
     };
 
     void fetchProducts();
@@ -112,7 +114,14 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
 
   return (
     <Card sx={sx}>
-      <CardHeader title="Latest products"  />
+      <CardHeader
+        title="Latest products"
+        action={
+          <Typography variant="subtitle1" color="text.secondary">
+      {searchTerm ? `${filteredProducts.length} items found` : `${totalProducts} items`}
+          </Typography>
+        }
+        />
       <Divider />
       <List>
         {filteredProducts.map((product, index) => (
