@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Download';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
-import dayjs from 'dayjs';
 import { config } from '@/config';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
@@ -23,8 +22,8 @@ import { db } from '../../../../server/lib/firebase';
 
 export default function Page(): React.JSX.Element {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const page = 0;
-  const rowsPerPage = 5;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchCustomers = async (): Promise<void> => {
@@ -43,6 +42,15 @@ export default function Page(): React.JSX.Element {
   const deleteCustomerById = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'users', id));
     setCustomers(customers.filter((customer) => customer.id !== id));
+  };
+
+  const handlePageChange = (event: unknown, newPage: number): void => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const paginatedCustomers = applyPagination(customers, page, rowsPerPage);
@@ -69,10 +77,12 @@ export default function Page(): React.JSX.Element {
       </Stack>
       <CustomersFilters />
       <CustomersTable
-        count={paginatedCustomers.length}
+        count={customers.length}
         page={page}
         rows={paginatedCustomers}
         rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         onDelete={deleteCustomerById} // Pass the delete function to the table component
       />
     </Stack>

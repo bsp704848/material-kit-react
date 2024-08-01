@@ -30,9 +30,8 @@ export interface Customer {
   avatar: string;
   firstName: string;
   email: string;
-  address: { city: string; state: string; country: string; street: string };
-  phone: string;
   role: string;
+  phone: string;
   createdAt: Date;
 }
 
@@ -41,7 +40,9 @@ interface CustomersTableProps {
   page?: number;
   rows?: Customer[];
   rowsPerPage?: number;
-  onDelete: (id: string) => Promise<void>; // Add onDelete prop
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onDelete: (id: string) => Promise<void>;
 }
 
 export function CustomersTable({
@@ -49,6 +50,8 @@ export function CustomersTable({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  onPageChange,
+  onRowsPerPageChange,
   onDelete,
 }: CustomersTableProps): React.JSX.Element {
   const rowIds = React.useMemo(() => {
@@ -82,10 +85,10 @@ export function CustomersTable({
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
+              {/* <TableCell>Phone</TableCell> */}
               <TableCell>Signed Up</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
-              {/* <TableCell>Phone</TableCell> */}
           </TableHead>
           <TableBody>
             {rows.map((row) => {
@@ -136,10 +139,10 @@ export function CustomersTable({
       <TablePagination
         component="div"
         count={count}
-        onPageChange={noop}
-        onRowsPerPageChange={noop}
         page={page}
+        onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={[5, 10, 25]}
       />
     </Card>
