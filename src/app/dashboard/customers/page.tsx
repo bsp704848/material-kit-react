@@ -1,29 +1,25 @@
 // src/app/dashboard/customers/page.tsx
-'use client'
+'use client';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import type { Metadata } from 'next';
 import RouterLink from 'next/link';
-import { paths } from '@/paths';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Download';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
-import { config } from '@/config';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
 
-
-
 export default function Page(): React.JSX.Element {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchCustomers = async (): Promise<void> => {
@@ -53,7 +49,12 @@ export default function Page(): React.JSX.Element {
     setPage(0);
   };
 
-  const paginatedCustomers = applyPagination(customers, page, rowsPerPage);
+  const filteredCustomers = customers.filter((customer) =>
+    customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedCustomers = applyPagination(filteredCustomers, page, rowsPerPage);
 
   return (
     <Stack spacing={3}>
@@ -70,20 +71,20 @@ export default function Page(): React.JSX.Element {
           </Stack>
         </Stack>
         <div>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href={paths.dashboard.addusers}>
+          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href="/dashboard/addusers">
             Add Users
           </Button>
         </div>
       </Stack>
-      <CustomersFilters />
+      <CustomersFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
       <CustomersTable
-        count={customers.length}
+        count={filteredCustomers.length}
         page={page}
         rows={paginatedCustomers}
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
-        onDelete={deleteCustomerById} // Pass the delete function to the table component
+        onDelete={deleteCustomerById}
       />
     </Stack>
   );

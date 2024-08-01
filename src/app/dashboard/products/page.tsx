@@ -1,4 +1,4 @@
-// page.tsx
+// src/app/dashboard/products/page.tsx
 "use client"
 
 import React, { useState } from 'react';
