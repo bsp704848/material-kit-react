@@ -28,7 +28,7 @@ function noop(): void {
 export interface Customer {
   id: string;
   avatar: string;
-  name: string;
+  firstName: string;
   email: string;
   address: { city: string; state: string; country: string; street: string };
   phone: string;
@@ -108,7 +108,7 @@ export function CustomersTable({
                   <TableCell>
                     <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
                       <Avatar src={row.avatar} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Typography variant="subtitle2">{row.firstName}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
