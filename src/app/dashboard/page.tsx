@@ -25,7 +25,7 @@ export default function Page(): React.JSX.Element {
     // Simulate data loading with a timeout
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Adjust the timeout as needed
+    },2000); // Adjust the timeout as needed
 
     return () => { clearTimeout(timer); };
   }, []);
@@ -33,7 +33,7 @@ export default function Page(): React.JSX.Element {
   if (loading) {
     return (
       <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
-        <Grid item>
+        <Grid>
           <CircularProgress />
         </Grid>
       </Grid>
@@ -42,7 +42,7 @@ export default function Page(): React.JSX.Element {
 
   return (
     <Grid container spacing={3} justifyContent="flex-end" alignItems="flex-start">
-      <Grid item>
+      <Grid>
         <Link component={RouterLink} href={paths.dashboard.newproduct}>
           <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
             Add

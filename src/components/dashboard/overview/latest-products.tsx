@@ -28,6 +28,8 @@ import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firesto
 import { db } from '../../../../server/lib/firebase';
 import { Link } from '@mui/material';
 import { paths } from '@/paths';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
+
 
 
 export interface Product {
@@ -55,9 +57,12 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
   const [quantity, setQuantity] = useState(1);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchProducts = async (): Promise<void> => {
+      setLoading(true);
       const querySnapshot = await getDocs(collection(db, 'products'));
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -69,7 +74,8 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
         };
       }) as Product[];
       setProducts(productsData);
-      setTotalProducts(productsData.length);  // Add this line
+      setTotalProducts(productsData.length);
+      setLoading(false); // Add this line
     };
 
     void fetchProducts();
@@ -118,182 +124,182 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
         title="Latest products"
         action={
           <Typography variant="subtitle1" color="text.secondary">
-      {searchTerm ? `${filteredProducts.length} items found` : `${totalProducts} items`}
+            {searchTerm ? `${filteredProducts.length} items found` : `${totalProducts} items`}
           </Typography>
         }
-        />
+      />
       <Divider />
-      <List>
-        {filteredProducts.map((product, index) => (
-          <ListItem
-            divider={index < filteredProducts.length - 1}
-            key={product.id}
-
-            sx={{ display: 'flex', alignItems: 'center' }}
-          >
-            <ListItemAvatar>
-              {product.imageUrl ? (
-                <Box
-                  component="img"
-                  src={product.imageUrl}
-                  sx={{ borderRadius: 1, height: '48px', width: '48px' }}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    borderRadius: 1,
-                    backgroundColor: 'var(--mui-palette-neutral-500)',
-                    height: '48px',
-                    width: '48px',
-                  }}
-                />
-              )}
-            </ListItemAvatar>
-            <ListItemText
-              primary={product.productName}
-              primaryTypographyProps={{ variant: 'subtitle1' }}
-              secondary={
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Box flexDirection="column">
-
-
-                  <Box mr={2} display="flex" gap="20px" alignItems="center">
-                    <Typography component="span" variant="body2" color="text.primary">
-                      Company: {product.company}
-                    </Typography>
-                    <Typography component="span" variant="body2" color="text.secondary">
-                      Quantity: {product.quantity}
-                    </Typography>
-                    <Typography component="span" variant="body2" color="text.secondary">
-                       {product.location}
-                    </Typography>
-
-                  </Box>
-                  <Box mr={2} display="flex" gap="20px" alignItems="center">
-
-                    <Typography component="span" variant="body2" color="text.secondary">
-                      ${product.price}
-                    </Typography>
-                  <Typography component="span" variant="body2" color="text.secondary">
-                      Updated {dayjs(product.updatedAt).format('MMM D, YYYY')}
-                    </Typography>
-                  </Box>
-
-                  </Box>
-
-                  {/* <Box ml={2} display="flex" alignItems="center" gap="5px">
-
-
-                    <Button variant="outlined">
-                    update Stock
-                    </Button>
-
-                  </Box> */}
-                </Box>
-              }
-            />
-            <Button variant="outlined" onClick={() => { handleClickOpen(product); }}>
-              Update stock
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <List>
+            {filteredProducts.length === 0 ? (
+              <ListItem>
+                <ListItemText primary="No items found" />
+              </ListItem>
+            ) : (
+              filteredProducts.map((product, index) => (
+                <ListItem
+                  divider={index < filteredProducts.length - 1}
+                  key={product.id}
+                  sx={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <ListItemAvatar>
+                    {product.imageUrl ? (
+                      <Box
+                        component="img"
+                        src={product.imageUrl}
+                        sx={{ borderRadius: 1, height: '48px', width: '48px' }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          borderRadius: 1,
+                          backgroundColor: 'var(--mui-palette-neutral-500)',
+                          height: '48px',
+                          width: '48px',
+                        }}
+                      />
+                    )}
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={product.productName}
+                    primaryTypographyProps={{ variant: 'subtitle1' }}
+                    secondary={
+                      <Box display="flex" alignItems="center" justifyContent="space-between">
+                        <Box flexDirection="column">
+                          <Box mr={2} display="flex" gap="20px" alignItems="center">
+                            <Typography component="span" variant="body2" color="text.primary">
+                              Company: {product.company}
+                            </Typography>
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              Quantity: {product.quantity}
+                            </Typography>
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              {product.location}
+                            </Typography>
+                          </Box>
+                          <Box mr={2} display="flex" gap="20px" alignItems="center">
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              ${product.price}
+                            </Typography>
+                            <Typography component="span" variant="body2" color="text.secondary">
+                              Updated {dayjs(product.updatedAt).format('MMM D, YYYY')}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    }
+                  />
+                  <Button variant="outlined" onClick={() => { handleClickOpen(product); }}>
+                    Update stock
+                  </Button>
+                  <Link href={`/dashboard/products/edit?id=${product.id}`}>
+                    <IconButton edge="end">
+                      <DotsThreeVerticalIcon weight="bold" />
+                    </IconButton>
+                  </Link>
+                  <IconButton
+                    edge="end"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteProduct(product);
+                      setDeleteOpen(true);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItem>
+              ))
+            )}
+          </List>
+          <Divider />
+          <CardActions sx={{ justifyContent: 'flex-end' }}>
+            <Button
+              color="inherit"
+              endIcon={<ArrowRightIcon fontSize="var(--icon-fontSize-md)" />}
+              size="small"
+              variant="text"
+              component={RouterLink}
+              href={paths.dashboard.products}
+            >
+              View all
             </Button>
-            <Link href={`/dashboard/products/edit?id=${product.id}`}>
-              <IconButton edge="end">
-                <DotsThreeVerticalIcon weight="bold" />
-              </IconButton>
-            </Link>
-            <IconButton
-              edge="end"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteProduct(product);
-                setDeleteOpen(true);
+          </CardActions>
+        </>
+      )}
+      {selectedProduct ? (
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Product Details</DialogTitle>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" alignItems="center" sx={{ mx: 'auto', width: 250 }}>
+              <Box
+                component="img"
+                src={selectedProduct.imageUrl}
+                sx={{ borderRadius: 0.5, height: '150px', width: '200px', mb: 2 }}
+              />
+              <Typography variant="h6" textAlign="center">
+                {selectedProduct.productName}
+              </Typography>
+              <Typography variant="body2" textAlign="center">
+                Company: {selectedProduct.company}
+              </Typography>
+              <Typography variant="body2" textAlign="center">
+                Location: {selectedProduct.location}
+              </Typography>
+              <Typography variant="body2" textAlign="center">
+                Price: ${selectedProduct.price}
+              </Typography>
+              <Typography variant="body2" textAlign="center" mb={2}>
+                Quantity: {selectedProduct.quantity}
+              </Typography>
+            </Box>
+            <Box mt={2} display="flex" justifyContent="center" alignItems="center">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  handleQuantityChange(-1);
+                }}
+                sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
+              >
+                -
+              </Button>
+              <TextField
+                value={quantity}
+                sx={{ width: '50px', textAlign: 'center', mx: 2 }}
+                onChange={(e) => { setQuantity(Number(e.target.value)); }}
+              />
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  handleQuantityChange(1);
+                }}
+                sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
+              >
+                +
+              </Button>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'center' }}>
+            <Button onClick={handleClose}>Close</Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={async () => {
+                if (selectedProduct) {
+                  await updateProductQuantity(selectedProduct.id, quantity);
+                  handleClose();
+                }
               }}
             >
-              <DeleteIcon />
-            </IconButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <CardActions sx={{ justifyContent: 'flex-end' }}>
-        <Button
-          color="inherit"
-          endIcon={<ArrowRightIcon fontSize="var(--icon-fontSize-md)" />}
-          size="small"
-          variant="text"
-          component={RouterLink} href={paths.dashboard.products}
-        >
-          View all
-        </Button>
-      </CardActions>
-      {selectedProduct ? (
-  <Dialog open={open} onClose={handleClose} >
-    <DialogTitle>Product Details</DialogTitle>
-    <DialogContent>
-      <Box display="flex" flexDirection="column" alignItems="center" sx={{mx: 'auto', width: 250}}>
-        <Box
-          component="img"
-          src={selectedProduct.imageUrl}
-          sx={{ borderRadius: 0.5, height: '150px', width: '200px', mb: 2 ,  }}
-        />
-        <Typography variant="h6" textAlign="center">
-          {selectedProduct.productName}
-        </Typography>
-        <Typography variant="body2" textAlign="center">
-          Company: {selectedProduct.company}
-        </Typography>
-        <Typography variant="body2" textAlign="center">
-          Location: {selectedProduct.location}
-        </Typography>
-        <Typography variant="body2" textAlign="center">
-          Price: ${selectedProduct.price}
-        </Typography>
-        <Typography variant="body2" textAlign="center" mb={2}>
-          Quantity: {selectedProduct.quantity}
-        </Typography>
-      </Box>
-      <Box mt={2} display="flex" justifyContent="center" alignItems="center">
-      <Button
-        variant="outlined"
-        onClick={() => {
-          handleQuantityChange(-1);
-        }}
-        sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
-      >
-          -
-        </Button>
-        <TextField
-          value={quantity}
-          sx={{ width: '50px', textAlign: 'center', mx: 2 }}
-          onChange={(e) => { setQuantity(Number(e.target.value)); }}
-        />
-        <Button
-          variant="outlined"
-          onClick={() => {
-            handleQuantityChange(1);
-          }}
-          sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
-        >
-          +
-        </Button>
-      </Box>
-    </DialogContent>
-    <DialogActions sx={{ justifyContent: 'center' }}>
-      <Button onClick={handleClose}>Close</Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={async () => {
-          if (selectedProduct) {
-            await updateProductQuantity(selectedProduct.id, quantity);
-            handleClose();
-          }
-        }}
-      >
-        Update stock
-      </Button>
-    </DialogActions>
-  </Dialog>
-) : null}
+              Update stock
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ) : null}
 
       <Dialog open={deleteOpen} onClose={() => { setDeleteOpen(false); }}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -319,3 +325,4 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
     </Card>
   );
 }
+
