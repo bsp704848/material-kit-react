@@ -1,3 +1,5 @@
+// src/components/dashboard/customer/customers-table.tsx
+
 'use client';
 
 import * as React from 'react';
@@ -14,8 +16,9 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs from 'dayjs';
-
 import { useSelection } from '@/hooks/use-selection';
 
 function noop(): void {
@@ -29,6 +32,7 @@ export interface Customer {
   email: string;
   address: { city: string; state: string; country: string; street: string };
   phone: string;
+  role: string;
   createdAt: Date;
 }
 
@@ -37,6 +41,7 @@ interface CustomersTableProps {
   page?: number;
   rows?: Customer[];
   rowsPerPage?: number;
+  onDelete: (id: string) => Promise<void>; // Add onDelete prop
 }
 
 export function CustomersTable({
@@ -44,6 +49,7 @@ export function CustomersTable({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  onDelete,
 }: CustomersTableProps): React.JSX.Element {
   const rowIds = React.useMemo(() => {
     return rows.map((customer) => customer.id);
@@ -75,9 +81,10 @@ export function CustomersTable({
               </TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Phone</TableCell>
+              <TableCell>Role</TableCell>
+              {/* <TableCell>Phone</TableCell> */}
               <TableCell>Signed Up</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -105,11 +112,20 @@ export function CustomersTable({
                     </Stack>
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
-                  <TableCell>
-                    {row.address.city}, {row.address.state}, {row.address.country}
-                  </TableCell>
+                  <TableCell>{row.role}</TableCell>
                   <TableCell>{row.phone}</TableCell>
                   <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      edge="end"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(row.id);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               );
             })}
