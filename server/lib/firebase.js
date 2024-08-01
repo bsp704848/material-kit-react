@@ -1,3 +1,4 @@
+//server/lib/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth'; // If you plan to use Firebase Authentication

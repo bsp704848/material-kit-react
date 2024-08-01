@@ -19,6 +19,8 @@ export interface UserProviderProps {
   children: React.ReactNode;
 }
 
+// src/context/user-context.tsx
+
 export function UserProvider({ children }: UserProviderProps): React.JSX.Element {
   const [state, setState] = React.useState<{ user: User | null; error: string | null; isLoading: boolean }>({
     user: null,

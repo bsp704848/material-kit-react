@@ -1,8 +1,8 @@
 // src/lib/auth/client.ts
 'use client';
-import { auth, db } from '../../../server/lib/firebase'; // Update this import
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../../server/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import type { User } from '@/types/user';
 
 export interface SignUpParams {
@@ -10,34 +10,37 @@ export interface SignUpParams {
   lastName: string;
   email: string;
   password: string;
-}
-
-export interface SignInWithOAuthParams {
-  provider: 'google' | 'discord';
-}
-
-export interface SignInWithPasswordParams {
-  email: string;
-  password: string;
-}
-
-export interface ResetPasswordParams {
-  email: string;
+  role?: 'admin' | 'user';
 }
 
 class AuthClient {
   async signUp(params: SignUpParams): Promise<{ error?: string }> {
-    const { firstName, lastName, email, password } = params;
+    const { firstName, lastName, email, password, role = 'user' } = params;
 
     try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("No admin user is currently signed in.");
+
+      // Save current user credentials
+      const credential = EmailAuthProvider.credential(currentUser.email!, prompt("Enter your password"));
+
+      // Temporarily sign out the admin
+      await signOut(auth);
+
+      // Create new user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await setDoc(doc(db, 'users', user.uid), { // Use db instead of firestore
+      // Store the user details in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
         firstName,
         lastName,
-        email
+        email,
+        role
       });
+
+      // Restore admin's session
+      await signInWithEmailAndPassword(auth, currentUser.email!, prompt("Enter your password"));
 
       return {};
     } catch (error) {
@@ -54,23 +57,34 @@ class AuthClient {
     }
   }
 
-  async resetPassword(_params: ResetPasswordParams): Promise<{ error?: string }> {
-    // Implement password reset logic with Firebase
-    return { error: 'Password reset not implemented' };
+  async isAdmin(userId: string): Promise<boolean> {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.role === 'admin';
+    }
+    return false;
   }
 
   async getUser(): Promise<{ data?: User | null; error?: string }> {
     return new Promise((resolve) => {
-      onAuthStateChanged(auth, (firebaseUser) => {
+      onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
-          const user: User = {
-            id: firebaseUser.uid,
-            avatar: '/assets/avatar.png',
-            firstName: firebaseUser.displayName?.split(' ')[0] || '',
-            lastName: firebaseUser.displayName?.split(' ')[1] || '',
-            email: firebaseUser.email || '',
-          };
-          resolve({ data: user });
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const user: User = {
+              id: firebaseUser.uid,
+              avatar: '/assets/avatar.png',
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              email: userData.email,
+              role: userData.role
+            };
+            resolve({ data: user });
+          } else {
+            resolve({ data: null });
+          }
         } else {
           resolve({ data: null });
         }

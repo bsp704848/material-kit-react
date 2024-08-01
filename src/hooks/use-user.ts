@@ -1,5 +1,6 @@
-import * as React from 'react';
+// src/hooks/use-user.tsx
 
+import * as React from 'react';
 import type { UserContextValue } from '@/contexts/user-context';
 import { UserContext } from '@/contexts/user-context';
 
