@@ -82,10 +82,10 @@ export function CustomersTable({
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
-              {/* <TableCell>Phone</TableCell> */}
               <TableCell>Signed Up</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
+              {/* <TableCell>Phone</TableCell> */}
           </TableHead>
           <TableBody>
             {rows.map((row) => {
@@ -113,7 +113,7 @@ export function CustomersTable({
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
                   <TableCell>{row.role}</TableCell>
-                  <TableCell>{row.phone}</TableCell>
+                  {/* <TableCell>{row.phone}</TableCell> */}
                   <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
                   <TableCell>
                     <IconButton
