@@ -34,7 +34,7 @@ export default function Page(): React.JSX.Element {
 
     void fetchCustomers();
   }, []);
-
+  
   const deleteCustomerById = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'users', id));
     setCustomers(customers.filter((customer) => customer.id !== id));
@@ -61,14 +61,7 @@ export default function Page(): React.JSX.Element {
       <Stack direction="row" spacing={3}>
         <Stack spacing={1} sx={{ flex: '1 1 auto' }}>
           <Typography variant="h4">Customers</Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Button color="inherit" startIcon={<UploadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Import
-            </Button>
-            <Button color="inherit" startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Export
-            </Button>
-          </Stack>
+
         </Stack>
         <div>
           <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href="/dashboard/addusers">
@@ -80,7 +73,7 @@ export default function Page(): React.JSX.Element {
       <CustomersTable
         count={filteredCustomers.length}
         page={page}
-        rows={paginatedCustomers}
+        rows={paginatedCustomers} 
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}

@@ -3,31 +3,36 @@ import * as React from 'react';
 import RouterLink from 'next/link';
 import { paths } from '@/paths';
 import Grid from '@mui/material/Unstable_Grid2';
-import dayjs from 'dayjs';
 import { Button, CircularProgress } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import Link from '@mui/material/Link';
-// import { Budget } from '@/components/dashboard/overview/budget';
-import { LatestOrders } from '@/components/dashboard/overview/latest-orders';
+import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
-import { Sales } from '@/components/dashboard/overview/sales';
-// import { TasksProgress } from '@/components/dashboard/overview/tasks-progress';
-// import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
-// import { TotalProfit } from '@/components/dashboard/overview/total-profit';
-import { Traffic } from '@/components/dashboard/overview/traffic';
-
-
+import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../server/lib/firebase'; // Adjust the import path as needed
 
 export default function Page(): React.JSX.Element {
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [numProducts, setNumProducts] = React.useState<number>(0);
+  const [numUsers, setNumUsers] = React.useState<number>(0);
 
   React.useEffect(() => {
-    // Simulate data loading with a timeout
-    const timer = setTimeout(() => {
-      setLoading(false);
-    },2000); // Adjust the timeout as needed
+    const fetchData = async () => {
+      try {
+        const productsSnapshot = await getDocs(collection(db, 'products'));
+        const usersSnapshot = await getDocs(collection(db, 'users'));
 
-    return () => { clearTimeout(timer); };
+        setNumProducts(productsSnapshot.size);
+        setNumUsers(usersSnapshot.size);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   if (loading) {
@@ -41,91 +46,26 @@ export default function Page(): React.JSX.Element {
   }
 
   return (
-    <Grid container spacing={3} justifyContent="flex-end" alignItems="flex-start">
-      <Grid>
-        <Link component={RouterLink} href={paths.dashboard.newproduct}>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
-            Add
-          </Button>
-        </Link>
+    <Grid container spacing={3} alignItems="flex-start">
+      <Grid container item spacing={3} xs={12} alignItems="flex-start">
+        <Grid item lg={3} sm={6} xs={12}>
+          <Budget diff={12} trend="up" sx={{ height: '100%' }} value={`${numProducts} Products`} />
+        </Grid>
+        <Grid item lg={3} sm={6} xs={12}>
+          <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value={`${numUsers} Users`} />
+        </Grid>
       </Grid>
-      <Grid lg={12} md={12} xs={12}>
-        <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5}/>
+      <Grid container item xs={12} justifyContent="flex-end">
+        <Grid item>
+          <Link component={RouterLink} href={paths.dashboard.newproduct}>
+            <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
+              Add
+            </Button>
+          </Link>
+        </Grid>
       </Grid>
-      {/* <Grid lg={3} sm={6} xs={12}>
-        <Budget diff={12} trend="up" sx={{ height: '100%' }} value="$24k" />
-      </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value="1.6k" />
-      </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TasksProgress sx={{ height: '100%' }} value={75.5} />
-      </Grid>
-      <Grid lg={3} sm={6} xs={12}>
-        <TotalProfit sx={{ height: '100%' }} value="$15k" />
-      </Grid> */}
-      <Grid lg={8} xs={12}>
-        <Sales
-
-          chartSeries={[
-            { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
-            { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-          ]}
-          sx={{ height: '100%' }}
-        />
-      </Grid>
-      <Grid lg={4} md={6} xs={12}>
-        <Traffic chartSeries={[63, 15, 22]} labels={['Desktop', 'Tablet', 'Phone']} sx={{ height: '100%' }} />
-      </Grid>
-
-      <Grid lg={8} md={12} xs={12}>
-        <LatestOrders
-          orders={[
-            {
-              id: 'ORD-007',
-              customer: { name: 'Ekaterina Tankova' },
-              amount: 30.5,
-              status: 'pending',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-006',
-              customer: { name: 'Cao Yu' },
-              amount: 25.1,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-004',
-              customer: { name: 'Alexa Richardson' },
-              amount: 10.99,
-              status: 'refunded',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-003',
-              customer: { name: 'Anje Keizer' },
-              amount: 96.43,
-              status: 'pending',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-002',
-              customer: { name: 'Clarke Gillebert' },
-              amount: 32.54,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-            {
-              id: 'ORD-001',
-              customer: { name: 'Adam Denisov' },
-              amount: 16.76,
-              status: 'delivered',
-              createdAt: dayjs().subtract(10, 'minutes').toDate(),
-            },
-          ]}
-          sx={{ height: '100%' }}
-        />
+      <Grid item xs={12}>
+        <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5} />
       </Grid>
     </Grid>
   );
