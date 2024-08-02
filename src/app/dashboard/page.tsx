@@ -46,12 +46,12 @@ export default function Page(): React.JSX.Element {
   }
 
   return (
-    <Grid container spacing={3} alignItems="flex-start">
+    <Grid container spacing={3} alignItems="stretch">
       <Grid container item spacing={3} xs={12} alignItems="flex-start">
-        <Grid item lg={3} sm={6} xs={12}>
-          <Budget diff={12} trend="up" sx={{ height: '100%' }} value={`${numProducts} Products`} />
+        <Grid item lg={3} sm={6} xs={12} style={{ flex: 1 }}>
+          <Budget diff={12} trend="up" sx={{ height: '100%' }} value={`${numProducts} Items`} />
         </Grid>
-        <Grid item lg={3} sm={6} xs={12}>
+        <Grid item lg={3} sm={6} xs={12} style={{ flex: 1 }}>
           <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value={`${numUsers} Users`} />
         </Grid>
       </Grid>
@@ -66,6 +66,8 @@ export default function Page(): React.JSX.Element {
       </Grid>
       <Grid item xs={12}>
         <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5} />
+      </Grid>
+      <Grid item xs={12} container justifyContent="flex-end">
       </Grid>
     </Grid>
   );

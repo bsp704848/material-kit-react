@@ -1,3 +1,5 @@
+// src/components/dashboard/account/account-details-form.tsx
+
 'use client';
 
 import * as React from 'react';
@@ -21,7 +23,18 @@ const states = [
   { value: 'los-angeles', label: 'Los Angeles' },
 ] as const;
 
-export function AccountDetailsForm(): React.JSX.Element {
+interface AccountDetailsFormProps {
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    state?: string;
+    city?: string;
+  };
+}
+
+export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX.Element {
   return (
     <form
       onSubmit={(event) => {
@@ -36,31 +49,31 @@ export function AccountDetailsForm(): React.JSX.Element {
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>First name</InputLabel>
-                <OutlinedInput defaultValue="Sofia" label="First name" name="firstName" />
+                <OutlinedInput defaultValue={user.firstName} label="First name" name="firstName" />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Last name</InputLabel>
-                <OutlinedInput defaultValue="Rivers" label="Last name" name="lastName" />
+                <OutlinedInput defaultValue={user.lastName} label="Last name" name="lastName" />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Email address</InputLabel>
-                <OutlinedInput defaultValue="sofia@devias.io" label="Email address" name="email" />
+                <OutlinedInput defaultValue={user.email} label="Email address" name="email" />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Phone number</InputLabel>
-                <OutlinedInput label="Phone number" name="phone" type="tel" />
+                <OutlinedInput defaultValue={user.phone ?? ''} label="Phone number" name="phone" type="tel" />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>State</InputLabel>
-                <Select defaultValue="New York" label="State" name="state" variant="outlined">
+                <Select defaultValue={user.state ?? ''} label="State" name="state" variant="outlined">
                   {states.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
@@ -72,7 +85,7 @@ export function AccountDetailsForm(): React.JSX.Element {
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>City</InputLabel>
-                <OutlinedInput label="City" />
+                <OutlinedInput defaultValue={user.city ?? ''} label="City" name="city" />
               </FormControl>
             </Grid>
           </Grid>
