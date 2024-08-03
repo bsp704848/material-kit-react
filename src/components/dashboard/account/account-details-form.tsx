@@ -15,6 +15,8 @@ import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 import Grid from '@mui/material/Unstable_Grid2';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -25,6 +27,7 @@ const states = [
 
 interface AccountDetailsFormProps {
   user: {
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -35,12 +38,37 @@ interface AccountDetailsFormProps {
 }
 
 export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX.Element {
+  const [formData, setFormData] = React.useState({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone || '',
+    state: user.state || '',
+    city: user.city || '',
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+    const { name, value } = event.target as HTMLInputElement;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const userId = user.id;
+    try {
+      await updateDoc(doc(getFirestore(), 'users', userId), formData);
+      alert('User details updated successfully!');
+    } catch (error) {
+      console.error('Error updating user details:', error);
+      alert('Failed to update user details.');
+    }
+  };
+
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-      }}
-    >
+    <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader subheader="The information can be edited" title="Profile" />
         <Divider />
@@ -49,31 +77,58 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>First name</InputLabel>
-                <OutlinedInput defaultValue={user.firstName} label="First name" name="firstName" />
+                <OutlinedInput
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  label="First name"
+                  name="firstName"
+                />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Last name</InputLabel>
-                <OutlinedInput defaultValue={user.lastName} label="Last name" name="lastName" />
+                <OutlinedInput
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  label="Last name"
+                  name="lastName"
+                />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Email address</InputLabel>
-                <OutlinedInput defaultValue={user.email} label="Email address" name="email" />
+                <OutlinedInput
+                  value={formData.email}
+                  onChange={handleChange}
+                  label="Email address"
+                  name="email"
+                />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Phone number</InputLabel>
-                <OutlinedInput defaultValue={user.phone ?? ''} label="Phone number" name="phone" type="tel" />
+                <OutlinedInput
+                  value={formData.phone}
+                  onChange={handleChange}
+                  label="Phone number"
+                  name="phone"
+                  type="tel"
+                />
               </FormControl>
             </Grid>
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>State</InputLabel>
-                <Select defaultValue={user.state ?? ''} label="State" name="state" variant="outlined">
+                <Select
+                  value={formData.state}
+                  onChange={handleChange}
+                  label="State"
+                  name="state"
+                  variant="outlined"
+                >
                   {states.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
@@ -85,14 +140,19 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>City</InputLabel>
-                <OutlinedInput defaultValue={user.city ?? ''} label="City" name="city" />
+                <OutlinedInput
+                  value={formData.city}
+                  onChange={handleChange}
+                  label="City"
+                  name="city"
+                />
               </FormControl>
             </Grid>
           </Grid>
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">Save details</Button>
+          <Button type="submit" variant="contained">Save details</Button>
         </CardActions>
       </Card>
     </form>

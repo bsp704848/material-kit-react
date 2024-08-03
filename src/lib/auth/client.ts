@@ -18,16 +18,7 @@ class AuthClient {
     const { firstName, lastName, email, password, role = 'user' } = params;
 
     try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("No admin user is currently signed in.");
-
-      // Save current user credentials
-      const credential = EmailAuthProvider.credential(currentUser.email!, prompt("Enter your password"));
-
-      // Temporarily sign out the admin
-      await signOut(auth);
-
-      // Create new user
+      // Create new user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -36,11 +27,9 @@ class AuthClient {
         firstName,
         lastName,
         email,
-        role
+        role,
+        createdAt: new Date()
       });
-
-      // Restore admin's session
-      await signInWithEmailAndPassword(auth, currentUser.email!, prompt("Enter your password"));
 
       return {};
     } catch (error) {

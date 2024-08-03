@@ -14,6 +14,7 @@ import { CustomersTable } from '@/components/dashboard/customer/customers-table'
 import type { Customer } from '@/components/dashboard/customer/customers-table';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
+import { paths } from '@/paths';
 
 export default function Page(): React.JSX.Element {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -34,7 +35,7 @@ export default function Page(): React.JSX.Element {
 
     void fetchCustomers();
   }, []);
-  
+
   const deleteCustomerById = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'users', id));
     setCustomers(customers.filter((customer) => customer.id !== id));
@@ -64,7 +65,7 @@ export default function Page(): React.JSX.Element {
 
         </Stack>
         <div>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href="/dashboard/addusers">
+          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href={paths.dashboard.addusers}>
             Add Users
           </Button>
         </div>
@@ -73,7 +74,7 @@ export default function Page(): React.JSX.Element {
       <CustomersTable
         count={filteredCustomers.length}
         page={page}
-        rows={paginatedCustomers} 
+        rows={paginatedCustomers}
         rowsPerPage={rowsPerPage}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}

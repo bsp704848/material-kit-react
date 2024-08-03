@@ -16,10 +16,9 @@ import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
-import { useRouter } from 'next/navigation';
-import { db } from '../../../../server/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import Link from '@mui/material/Link';
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth/client';  // Import authClient
 import { paths } from '@/paths';
 
 export function UsersForm(): React.JSX.Element {
@@ -28,7 +27,7 @@ export function UsersForm(): React.JSX.Element {
     lastName: '',
     email: '',
     password: '',
-    role: ''
+    role: 'user'
   });
   const [alert, setAlert] = React.useState<string | null>(null);
   const router = useRouter();
@@ -41,14 +40,14 @@ export function UsersForm(): React.JSX.Element {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     try {
-      const docRef = await addDoc(collection(db, "users"), {
-        ...formValues,
-        createdAt: serverTimestamp()
-      });
-      console.log("Document written with ID: ", docRef.id);
-      setAlert("User added successfully!");
+      const { error } = await authClient.signUp(formValues);
+      if (error) {
+        setAlert(error);
+      } else {
+        setAlert("User added successfully!");
+      }
     } catch (e) {
-      console.error("Error adding document: ", e);
+      console.error("Error adding user: ", e);
       setAlert("Error adding user!");
     }
   };
