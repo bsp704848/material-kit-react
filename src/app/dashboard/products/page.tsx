@@ -12,7 +12,7 @@ export default function Page() {
     <div>
       <ProductsFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
       <br />
-      <LatestProducts searchTerm={searchTerm} />
+      <LatestProducts searchTerm={searchTerm} paginate={true} />
     </div>
   );
 }

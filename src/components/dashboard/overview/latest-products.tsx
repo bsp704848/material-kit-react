@@ -1,4 +1,3 @@
-// latestProductsComponent.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
@@ -26,11 +25,8 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../../server/lib/firebase';
-import { Link } from '@mui/material';
+import { Link, TablePagination, CircularProgress } from '@mui/material';
 import { paths } from '@/paths';
-import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
-
-
 
 export interface Product {
   id: string;
@@ -45,20 +41,22 @@ export interface Product {
 
 export interface LatestProductsProps {
   sx?: SxProps;
-  searchTerm: string;  // Add this line
+  searchTerm: string;
   limit?: number;
+  paginate?: boolean;
 }
 
-export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): React.JSX.Element {
+export function LatestProducts({ sx, searchTerm, limit, paginate = false }: LatestProductsProps): React.JSX.Element {
   const [products, setProducts] = useState<Product[]>([]);
-  const [totalProducts, setTotalProducts] = useState(0);  // Add this line
+  const [totalProducts, setTotalProducts] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchProducts = async (): Promise<void> => {
@@ -69,27 +67,25 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
         return {
           id: doc.id,
           ...data,
-          quantity: data.quantity || 1, // Handle default quantity
-          updatedAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convert Firestore timestamp to Date object
+          quantity: data.quantity || 1,
+          updatedAt: data.createdAt ? data.createdAt.toDate() : new Date(),
         };
       }) as Product[];
       setProducts(productsData);
       setTotalProducts(productsData.length);
-      setLoading(false); // Add this line
+      setLoading(false);
     };
 
     void fetchProducts();
   }, []);
 
-  // Filter products based on search term
   const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  .slice(0, limit)
+  );
 
   const handleClickOpen = (product: Product): void => {
     setSelectedProduct(product);
-    setQuantity(product.quantity); // Set the initial quantity
+    setQuantity(product.quantity);
     setOpen(true);
   };
 
@@ -118,6 +114,21 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
     );
   };
 
+  const handlePageChange = (event: unknown, newPage: number): void => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const applyPagination = (rows: Product[], page: number, rowsPerPage: number): Product[] => {
+    return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  };
+
+  const paginatedProducts = applyPagination(filteredProducts, page, rowsPerPage);
+
   return (
     <Card sx={sx}>
       <CardHeader
@@ -136,14 +147,14 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
       ) : (
         <>
           <List>
-            {filteredProducts.length === 0 ? (
+            {paginatedProducts.length === 0 ? (
               <ListItem>
                 <ListItemText primary="No items found" />
               </ListItem>
             ) : (
-              filteredProducts.map((product, index) => (
+              paginatedProducts.map((product, index) => (
                 <ListItem
-                  divider={index < filteredProducts.length - 1}
+                  divider={index < paginatedProducts.length - 1}
                   key={product.id}
                   sx={{ display: 'flex', alignItems: 'center' }}
                 >
@@ -229,100 +240,76 @@ export function LatestProducts({ sx, searchTerm, limit}: LatestProductsProps): R
               View all
             </Button>
           </CardActions>
+          <Divider />
+          {paginate && (
+            <TablePagination
+              component="div"
+              count={filteredProducts.length}
+              page={page}
+              onPageChange={handlePageChange}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleRowsPerPageChange}
+              rowsPerPageOptions={[5, 10, 25]}
+            />
+          )}
         </>
       )}
       {selectedProduct ? (
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Product Details</DialogTitle>
           <DialogContent>
-            <Box display="flex" flexDirection="column" alignItems="center" sx={{ mx: 'auto', width: 250 }}>
-              <Box
-                component="img"
-                src={selectedProduct.imageUrl}
-                sx={{ borderRadius: 0.5, height: '150px', width: '200px', mb: 2 }}
-              />
-              <Typography variant="h6" textAlign="center">
-                {selectedProduct.productName}
-              </Typography>
-              <Typography variant="body2" textAlign="center">
-                Company: {selectedProduct.company}
-              </Typography>
-              <Typography variant="body2" textAlign="center">
-                Location: {selectedProduct.location}
-              </Typography>
-              <Typography variant="body2" textAlign="center">
-                Price: ${selectedProduct.price}
-              </Typography>
-              <Typography variant="body2" textAlign="center" mb={2}>
-                Quantity: {selectedProduct.quantity}
-              </Typography>
-            </Box>
-            <Box mt={2} display="flex" justifyContent="center" alignItems="center">
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  handleQuantityChange(-1);
-                }}
-                sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
-              >
-                -
-              </Button>
-              <TextField
-                value={quantity}
-                sx={{ width: '50px', textAlign: 'center', mx: 2 }}
-                onChange={(e) => { setQuantity(Number(e.target.value)); }}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  handleQuantityChange(1);
-                }}
-                sx={{ width: '40px', height: '40px', minWidth: 'unset', padding: 0 }}
-              >
-                +
-              </Button>
-            </Box>
+            <TextField
+              margin="dense"
+              label="Quantity"
+              type="number"
+              fullWidth
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
+            />
           </DialogContent>
-          <DialogActions sx={{ justifyContent: 'center' }}>
-            <Button onClick={handleClose}>Close</Button>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
             <Button
-              variant="contained"
-              color="primary"
-              onClick={async () => {
+              onClick={() => {
                 if (selectedProduct) {
-                  await updateProductQuantity(selectedProduct.id, quantity);
-                  handleClose();
+                  updateProductQuantity(selectedProduct.id, quantity);
                 }
+                handleClose();
               }}
             >
-              Update stock
+              Update
             </Button>
           </DialogActions>
         </Dialog>
       ) : null}
-
-      <Dialog open={deleteOpen} onClose={() => { setDeleteOpen(false); }}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this product?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => { setDeleteOpen(false); }}>Cancel</Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={async () => {
-              if (deleteProduct) {
-                await deleteProductById(deleteProduct.id);
+      {deleteProduct ? (
+        <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+          <DialogTitle>Delete Product</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete this product: {deleteProduct.productName}?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (deleteProduct) {
+                  deleteProductById(deleteProduct.id);
+                }
                 setDeleteOpen(false);
-              }
-            }}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+              }}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ) : null}
     </Card>
   );
 }
 
+LatestProducts.propTypes = {
+  sx: PropTypes.object,
+  searchTerm: PropTypes.string.isRequired,
+  limit: PropTypes.number,
+  paginate: PropTypes.bool,
+};
