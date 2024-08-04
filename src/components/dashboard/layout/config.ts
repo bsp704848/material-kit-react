@@ -1,3 +1,5 @@
+// /src/components/dashboard/layout/config.ts
+
 import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 

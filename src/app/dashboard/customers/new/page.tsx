@@ -1,3 +1,5 @@
+//src/app/dashboard/customers/new/page.tsx
+
 import { AdminGuard } from '@/components/auth/AdminGuard';
 import { UsersForm } from '@/components/dashboard/customer/users-form';
 import EditProductForm from '@/components/dashboard/products/edit-products-form';

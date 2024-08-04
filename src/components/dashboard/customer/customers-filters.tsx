@@ -21,7 +21,7 @@ export function CustomersFilters({ searchTerm, onSearch }: CustomersFiltersProps
         value={searchTerm}
         onChange={handleSearchChange}
         fullWidth
-        placeholder="Search customer"
+        placeholder="Search users"
         startAdornment={
           <InputAdornment position="start">
             <MagnifyingGlassIcon fontSize="var(--icon-fontSize-md)" />

@@ -1,5 +1,3 @@
-// src/components/dashboard/account/account-details-form.tsx
-
 'use client';
 
 import * as React from 'react';
@@ -10,13 +8,13 @@ import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import { InputLabel } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 import Grid from '@mui/material/Unstable_Grid2';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-
+import { doc, updateDoc } from 'firebase/firestore';
+import { db, auth } from '../../../../server/lib/firebase'; // Ensure this path is correct
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -57,9 +55,31 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const userId = user.id;
+
+    // Get the current user ID
+    const user = auth.currentUser;
+    if (!user) {
+      console.error('User not authenticated');
+      alert('User not authenticated');
+      return;
+    }
+
+    const userId = user.uid;
+
+    // Debugging: Ensure userId is valid
+    if (!userId) {
+      console.error('User ID is not defined');
+      alert('User ID is not defined');
+      return;
+    }
+
     try {
-      await updateDoc(doc(getFirestore(), 'users', userId), formData);
+      const userDoc = doc(db, 'users', userId);
+
+      // Debugging: Check userDoc
+      console.log('Updating document at:', userDoc.path);
+
+      await updateDoc(userDoc, formData);
       alert('User details updated successfully!');
     } catch (error) {
       console.error('Error updating user details:', error);
@@ -158,3 +178,5 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
     </form>
   );
 }
+
+export default AccountDetailsForm;

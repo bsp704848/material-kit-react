@@ -1,3 +1,5 @@
+//src/components/dashboard/layout/side-nav.tsx
+
 'use client';
 
 import * as React from 'react';
