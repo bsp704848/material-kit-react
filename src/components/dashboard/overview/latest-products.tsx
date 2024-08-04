@@ -227,6 +227,10 @@ export function LatestProducts({ sx, searchTerm, limit, paginate = false }: Late
               ))
             )}
           </List>
+          {!paginate && (
+            <>
+
+
           <Divider />
           <CardActions sx={{ justifyContent: 'flex-end' }}>
             <Button
@@ -240,7 +244,9 @@ export function LatestProducts({ sx, searchTerm, limit, paginate = false }: Late
               View all
             </Button>
           </CardActions>
-          <Divider />
+          </>
+        )}
+        <Divider />
           {paginate && (
             <TablePagination
               component="div"
