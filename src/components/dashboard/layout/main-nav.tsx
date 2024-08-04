@@ -49,25 +49,9 @@ export function MainNav(): React.JSX.Element {
             >
               <ListIcon />
             </IconButton>
-            <Tooltip title="Search">
-              <IconButton aria-label="Search">
-                <MagnifyingGlassIcon />
-              </IconButton>
-            </Tooltip>
           </Stack>
           <Stack direction="row" spacing={2} alignItems="center">
-            <Tooltip title="Contacts">
-              <IconButton aria-label="Contacts">
-                <UsersIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Notifications">
-              <Badge badgeContent={4} color="error" variant="dot">
-                <IconButton aria-label="Notifications">
-                  <BellIcon />
-                </IconButton>
-              </Badge>
-            </Tooltip>
+
             <Avatar
               onClick={userPopover.handleOpen}
               ref={userPopover.anchorRef}

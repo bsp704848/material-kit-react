@@ -1,7 +1,7 @@
 // src/lib/auth/client.ts
 'use client';
 import { auth, db } from '../../../server/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, getAuth, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, getAuth, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import type { User } from '@/types/user';
 
@@ -11,6 +11,10 @@ export interface SignUpParams {
   email: string;
   password: string;
   role?: 'admin' | 'user';
+}
+
+export interface ResetPasswordParams {
+  email: string;
 }
 
 class AuthClient {
@@ -53,6 +57,17 @@ class AuthClient {
       return userData.role === 'admin';
     }
     return false;
+  }
+
+  async resetPassword(params: ResetPasswordParams): Promise<{ error?: string }> {
+    const { email } = params;
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return {};
+    } catch (error) {
+      return { error: (error as Error).message };
+    }
   }
 
   async getUser(): Promise<{ data?: User | null; error?: string }> {

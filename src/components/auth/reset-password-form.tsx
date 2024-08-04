@@ -45,7 +45,7 @@ export function ResetPasswordForm(): React.JSX.Element {
 
       setIsPending(false);
 
-      // Redirect to confirm password reset
+      // Optionally, redirect or show a success message
     },
     [setError]
   );

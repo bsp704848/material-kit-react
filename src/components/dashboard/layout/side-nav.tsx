@@ -53,18 +53,7 @@ export function SideNav(): React.JSX.Element {
         <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
           <Logo color="light" height={32} width={122} />
         </Box>
-        <Box
-          sx={{
-            alignItems: 'center',
-            backgroundColor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: '8px',
-            display: 'flex',
-            p: '6px 12px',
-            boxShadow: 1,
-          }}
-        >
+
           <Box sx={{ flex: '1 1 auto' }}>
             <Typography color="text.secondary" variant="body2">
               Warehouse
@@ -73,8 +62,8 @@ export function SideNav(): React.JSX.Element {
               Management
             </Typography>
           </Box>
-          <CaretUpDownIcon />
-        </Box>
+
+
       </Stack>
       <Divider sx={{ borderColor: 'divider' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>

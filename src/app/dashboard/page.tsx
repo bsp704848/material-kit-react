@@ -1,44 +1,21 @@
-'use client'
+'use client';
 import * as React from 'react';
-import RouterLink from 'next/link';
-import { paths } from '@/paths';
-import Grid from '@mui/material/Unstable_Grid2';
-import { Button, CircularProgress } from '@mui/material';
-import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-import Link from '@mui/material/Link';
+import { Button, CircularProgress, Grid, Link } from '@mui/material';
+import { Plus as PlusIcon } from '@phosphor-icons/react';
 import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
 import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../../server/lib/firebase'; // Adjust the import path as needed
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { paths } from '@/paths';
+import RouterLink from 'next/link';
 
 export default function Page(): React.JSX.Element {
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [numProducts, setNumProducts] = React.useState<number>(0);
-  const [numUsers, setNumUsers] = React.useState<number>(0);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-
-        setNumProducts(productsSnapshot.size);
-        setNumUsers(usersSnapshot.size);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { loading, numProducts, numUsers } = useDashboardData();
 
   if (loading) {
     return (
       <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
-        <Grid>
+        <Grid item>
           <CircularProgress />
         </Grid>
       </Grid>
@@ -66,8 +43,6 @@ export default function Page(): React.JSX.Element {
       </Grid>
       <Grid item xs={12}>
         <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5} />
-      </Grid>
-      <Grid item xs={12} container justifyContent="flex-end">
       </Grid>
     </Grid>
   );

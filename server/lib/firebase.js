@@ -1,10 +1,7 @@
-//server/lib/firebase.js
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyCySIdMuHHAcBGGxIheSi8_fFpJbQLodsI",
@@ -16,13 +13,11 @@ const firebaseConfig = {
   measurementId: "G-E3B8E4JN40"
 };
 
-let app, db, auth, storage;
+// Initialize Firebase app
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-if (typeof window !== 'undefined') {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
-}
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
 export { db, auth, storage };
