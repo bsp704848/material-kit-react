@@ -1,14 +1,14 @@
 // src/app/dashboard/customers/page.tsx
+
 'use client';
+
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import RouterLink from 'next/link';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Download as DownloadIcon } from '@phosphor-icons/react/dist/ssr/Download';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
-import { Upload as UploadIcon } from '@phosphor-icons/react/dist/ssr/Upload';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
@@ -22,7 +22,7 @@ export default function Page(): React.JSX.Element {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchCustomers = async (): Promise<void> => {
       const querySnapshot = await getDocs(collection(db, 'users'));
       const usersData = querySnapshot.docs.map((doc) => ({
@@ -62,28 +62,30 @@ export default function Page(): React.JSX.Element {
       <Stack direction="row" spacing={3}>
         <Stack spacing={1} sx={{ flex: '1 1 auto' }}>
           <Typography variant="h4">Users</Typography>
-
         </Stack>
         <div>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href={paths.dashboard.addusers}>
-            Add Users
+          <Button startIcon={<PlusIcon fontSize="var(--mui-svg-icon-size, 1.5rem)" />} variant="contained" component={RouterLink} href={paths.dashboard.customers.new}>
+            Add
           </Button>
         </div>
       </Stack>
-      <CustomersFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <CustomersFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <CustomersTable
-        count={filteredCustomers.length}
-        page={page}
-        rows={paginatedCustomers}
-        rowsPerPage={rowsPerPage}
+        customers={paginatedCustomers}
+        customersCount={filteredCustomers.length}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
-        onDelete={deleteCustomerById}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onDeleteCustomer={deleteCustomerById}
       />
     </Stack>
   );
 }
 
-function applyPagination(rows: Customer[], page: number, rowsPerPage: number): Customer[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+function applyPagination<T>(items: T[], page: number, rowsPerPage: number): T[] {
+  return items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

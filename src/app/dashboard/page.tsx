@@ -1,28 +1,21 @@
 'use client';
 import * as React from 'react';
-import { Button, CircularProgress, Grid, Link } from '@mui/material';
+import { Button, Grid, Link } from '@mui/material';
 import { Plus as PlusIcon } from '@phosphor-icons/react';
-import { Budget } from '@/components/dashboard/overview/budget';
-import { LatestProducts } from '@/components/dashboard/overview/latest-products';
-import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
+import dynamic from 'next/dynamic';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { paths } from '@/paths';
 import RouterLink from 'next/link';
+import { Loading } from '@/components/loading/loading';
+// Dynamically import components for better performance
+const Budget = dynamic(() => import('@/components/dashboard/overview/budget').then((mod) => mod.Budget));
+const LatestProducts = dynamic(() => import('@/components/dashboard/overview/latest-products').then((mod) => mod.LatestProducts));
+const TotalCustomers = dynamic(() => import('@/components/dashboard/overview/total-customers').then((mod) => mod.TotalCustomers));
 
 export default function Page(): React.JSX.Element {
   const { loading, numProducts, numUsers } = useDashboardData();
 
-  if (loading) {
-    return (
-      <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
-        <Grid item>
-          <CircularProgress />
-        </Grid>
-      </Grid>
-    );
-  }
-
-  return (
+  const renderDashboard = React.useCallback(() => (
     <Grid container spacing={3} alignItems="stretch">
       <Grid container item spacing={3} xs={12} alignItems="flex-start">
         <Grid item lg={3} sm={6} xs={12} style={{ flex: 1 }}>
@@ -45,5 +38,7 @@ export default function Page(): React.JSX.Element {
         <LatestProducts sx={{ height: '100%' }} searchTerm="" limit={5} />
       </Grid>
     </Grid>
-  );
+  ), [numProducts, numUsers]);
+
+  return loading ? <Loading /> : renderDashboard();
 }
