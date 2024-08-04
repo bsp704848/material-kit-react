@@ -1,8 +1,9 @@
 //server/lib/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth'; // If you plan to use Firebase Authentication
+import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+
 
 
 const firebaseConfig = {
@@ -15,12 +16,13 @@ const firebaseConfig = {
   measurementId: "G-E3B8E4JN40"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app, db, auth, storage;
 
-// Initialize Firestore and Auth
-export const db = getFirestore(app);
-export const auth = getAuth(app); // If you plan to use Firebase Authentication
-export const storage = getStorage(app);
+if (typeof window !== 'undefined') {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  storage = getStorage(app);
+}
 
-export default app;
+export { db, auth, storage };
