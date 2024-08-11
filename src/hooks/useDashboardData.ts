@@ -1,3 +1,4 @@
+// src/hooks/useDashboardData.ts
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../server/lib/firebase';

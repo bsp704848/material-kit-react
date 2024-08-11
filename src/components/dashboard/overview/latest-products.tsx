@@ -27,6 +27,8 @@ import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firesto
 import { db } from '../../../../server/lib/firebase';
 import { Link, TablePagination, CircularProgress } from '@mui/material';
 import { paths } from '@/paths';
+import { useDashboardData } from '@/hooks/useDashboardData';
+
 
 export interface Product {
   id: string;

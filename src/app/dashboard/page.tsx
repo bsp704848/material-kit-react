@@ -6,6 +6,7 @@ import { Budget } from '@/components/dashboard/overview/budget';
 import { LatestProducts } from '@/components/dashboard/overview/latest-products';
 import { TotalCustomers } from '@/components/dashboard/overview/total-customers';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import Loading from '@/components/loading/loading';
 import { paths } from '@/paths';
 import RouterLink from 'next/link';
 
@@ -13,13 +14,9 @@ export default function Page(): React.JSX.Element {
   const { loading, numProducts, numUsers } = useDashboardData();
 
   if (loading) {
-    return (
-      <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
-        <Grid item>
-          <CircularProgress />
-        </Grid>
-      </Grid>
-    );
+    return <Loading/>;
+
+
   }
 
   return (
