@@ -1,20 +1,13 @@
+// src/components/AccountDetailsForm.tsx
+
 'use client';
 
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
-import { InputLabel } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Select from '@mui/material/Select';
-import Grid from '@mui/material/Unstable_Grid2';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../../../../server/lib/firebase'; // Ensure this path is correct
+import { Button, Card, CardActions, CardContent, CardHeader, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Grid } from '@mui/material';
+import { updateDoc, doc } from 'firebase/firestore';
+import { useFetchUser } from '@/hooks/useFetchUser';
+import { db, auth } from '../../../../server/lib/firebase';
+import { User } from '@/types/user';
 
 const states = [
   { value: 'alabama', label: 'Alabama' },
@@ -24,26 +17,19 @@ const states = [
 ] as const;
 
 interface AccountDetailsFormProps {
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-    state?: string;
-    city?: string;
-  };
+  userId: string;
 }
 
-export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX.Element {
-  const [formData, setFormData] = React.useState({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone || '',
-    state: user.state || '',
-    city: user.city || '',
-  });
+export function AccountDetailsForm({ userId }: AccountDetailsFormProps): React.JSX.Element {
+  const { user, loading } = useFetchUser(userId);
+
+  const [formData, setFormData] = React.useState<User | null>(null);
+
+  React.useEffect(() => {
+    if (user) {
+      setFormData(user);
+    }
+  }, [user]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = event.target as HTMLInputElement;
@@ -56,7 +42,8 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Get the current user ID
+    if (!formData) return;
+
     const user = auth.currentUser;
     if (!user) {
       console.error('User not authenticated');
@@ -66,19 +53,8 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
 
     const userId = user.uid;
 
-    // Debugging: Ensure userId is valid
-    if (!userId) {
-      console.error('User ID is not defined');
-      alert('User ID is not defined');
-      return;
-    }
-
     try {
       const userDoc = doc(db, 'users', userId);
-
-      // Debugging: Check userDoc
-      console.log('Updating document at:', userDoc.path);
-
       await updateDoc(userDoc, formData);
       alert('User details updated successfully!');
     } catch (error) {
@@ -86,6 +62,14 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
       alert('Failed to update user details.');
     }
   };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!formData) {
+    return <p>User data not available</p>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -98,7 +82,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth required>
                 <InputLabel>First name</InputLabel>
                 <OutlinedInput
-                  value={formData.firstName}
+                  value={formData.firstName || ''}
                   onChange={handleChange}
                   label="First name"
                   name="firstName"
@@ -109,7 +93,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth required>
                 <InputLabel>Last name</InputLabel>
                 <OutlinedInput
-                  value={formData.lastName}
+                  value={formData.lastName || ''}
                   onChange={handleChange}
                   label="Last name"
                   name="lastName"
@@ -120,7 +104,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth required>
                 <InputLabel>Email address</InputLabel>
                 <OutlinedInput
-                  value={formData.email}
+                  value={formData.email || ''}
                   onChange={handleChange}
                   label="Email address"
                   name="email"
@@ -131,7 +115,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth>
                 <InputLabel>Phone number</InputLabel>
                 <OutlinedInput
-                  value={formData.phone}
+                  value={formData.phone || ''}
                   onChange={handleChange}
                   label="Phone number"
                   name="phone"
@@ -143,7 +127,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth>
                 <InputLabel>State</InputLabel>
                 <Select
-                  value={formData.state}
+                  value={formData.state || ''}
                   onChange={handleChange}
                   label="State"
                   name="state"
@@ -161,7 +145,7 @@ export function AccountDetailsForm({ user }: AccountDetailsFormProps): React.JSX
               <FormControl fullWidth>
                 <InputLabel>City</InputLabel>
                 <OutlinedInput
-                  value={formData.city}
+                  value={formData.city || ''}
                   onChange={handleChange}
                   label="City"
                   name="city"
