@@ -1,6 +1,9 @@
+// src/app/dashboard/customers/page.tsx
+
 'use client';
+
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import RouterLink from 'next/link';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -21,7 +24,7 @@ export default function Page(): React.JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true); // Add loading state
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchCustomers = async (): Promise<void> => {
       setLoading(true); // Set loading to true before fetching
       try {
@@ -74,25 +77,28 @@ export default function Page(): React.JSX.Element {
           <Typography variant="h4">Users</Typography>
         </Stack>
         <div>
-          <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained" component={RouterLink} href={paths.dashboard.addusers}>
-            Add Users
+          <Button startIcon={<PlusIcon fontSize="var(--mui-svg-icon-size, 1.5rem)" />} variant="contained" component={RouterLink} href={paths.dashboard.customers.new}>
+            Add
           </Button>
         </div>
       </Stack>
-      <CustomersFilters searchTerm={searchTerm} onSearch={setSearchTerm} />
+      <CustomersFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <CustomersTable
-        count={filteredCustomers.length}
-        page={page}
-        rows={paginatedCustomers}
-        rowsPerPage={rowsPerPage}
+        customers={paginatedCustomers}
+        customersCount={filteredCustomers.length}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
-        onDelete={deleteCustomerById}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onDeleteCustomer={deleteCustomerById}
       />
     </Stack>
   );
 }
 
-function applyPagination(rows: Customer[], page: number, rowsPerPage: number): Customer[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+function applyPagination<T>(items: T[], page: number, rowsPerPage: number): T[] {
+  return items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

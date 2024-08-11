@@ -1,7 +1,15 @@
 // src/lib/auth/client.ts
 'use client';
 import { auth, db } from '../../../server/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, getAuth, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import type { User } from '@/types/user';
 
@@ -18,15 +26,15 @@ export interface ResetPasswordParams {
 }
 
 class AuthClient {
+  private cachedUser: User | null = null;
+
   async signUp(params: SignUpParams): Promise<{ error?: string }> {
     const { firstName, lastName, email, password, role = 'user' } = params;
 
     try {
-      // Create new user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Store the user details in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         firstName,
         lastName,
@@ -51,9 +59,16 @@ class AuthClient {
   }
 
   async isAdmin(userId: string): Promise<boolean> {
+    if (this.cachedUser && this.cachedUser.id === userId) {
+      return this.cachedUser.role === 'admin';
+    }
+
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
+      if (!this.cachedUser) {
+        this.cachedUser = { id: userId, ...userData } as User;
+      }
       return userData.role === 'admin';
     }
     return false;
@@ -71,6 +86,10 @@ class AuthClient {
   }
 
   async getUser(): Promise<{ data?: User | null; error?: string }> {
+    if (this.cachedUser) {
+      return { data: this.cachedUser };
+    }
+
     return new Promise((resolve) => {
       onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
@@ -85,6 +104,7 @@ class AuthClient {
               email: userData.email,
               role: userData.role
             };
+            this.cachedUser = user;
             resolve({ data: user });
           } else {
             resolve({ data: null });
@@ -99,6 +119,7 @@ class AuthClient {
   async signOut(): Promise<{ error?: string }> {
     try {
       await signOut(auth);
+      this.cachedUser = null;
       return {};
     } catch (error) {
       return { error: (error as Error).message };
